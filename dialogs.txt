@@ -1,0 +1,8 @@
+{false,"Hello! My name is Dr. SmarChibliss, but you can call me Dr. Smar."},
+{false,"Your name is Beebo. Hear that? B-e-e-b-o. Me Smar, you Beebo."},
+{true,"Yeah I can understand what you're saying."},
+{false,"Oh good! Your speech module is working."},
+{false,"Okay first off, head over there to that wall and break the boxes with your +spin >a."},
+{false,"I'll meet you on the other side."},
+
+{false,"Big boner down the lane"},
