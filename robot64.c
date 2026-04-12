@@ -2117,6 +2117,7 @@ uint8_t ledgetimer2 = 0;
 uint8_t walltimer = 0;
 uint8_t swiptimer = 0;
 uint8_t icedtimer = 0;
+uint8_t watertimer = 0;
 bool canmove = true;
 bool stillcam = true;
 bool snapcam = false;
@@ -2753,6 +2754,9 @@ void stepchar(){
                 canmove=true;
             }
         }
+        if(watertimer>0){
+            watertimer--;
+        }
         //entity collision
         bool inwatr=false;
         if(entlist.count>0&&!trsing2){
@@ -2823,6 +2827,7 @@ void stepchar(){
         }
         if(!plrswimming&&inwatr){
             plrswimming=true;
+            watertimer=180;
             plrsliding=false;
             plrpound=false;
             plrlongjump=false;
@@ -2832,6 +2837,7 @@ void stepchar(){
             plrdjump=true;
         }else if(plrswimming&&!inwatr){
             plrswimming=false;
+            watertimer=180;
             plrsliding=true;
             if(plrvel.y>0){
                 plrvel.y*=1.5;
@@ -2913,6 +2919,13 @@ void stepchar(){
             Vector3 test = Vector3Subtract(v2(plrpos),v2(camera.position));
             float thing = atan2f(test.x,test.z);
             camh = -thing*M_TODEG;
+        }
+        if(!(Vector2Length((Vector2){yimh,yimv})>.2||stillcam||camzoom==.5)){
+            if(plrswimming){
+                camv+=(-(botand+1)-(camv*M_TORAD))*(dt*M_TODEG);
+            }else if(watertimer>0){
+                camv+=(.4-(camv*M_TORAD))*(dt*M_TODEG);
+            }
         }
         camera.target = plrpos;
         camera.position = Vector3Add(plrpos,(Vector3){0,0,-1.0f});
