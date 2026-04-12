@@ -1,0 +1,1 @@
+only the .glb files are used in the game (they have better filesize)
