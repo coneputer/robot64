@@ -1,0 +1,1 @@
+all of the textures for models are flipped vertically because for some reason raylib renders textures as vertically flipped on models, so i have to do it again to cancel it out
