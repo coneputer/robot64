@@ -382,6 +382,9 @@ const unsigned char tex_sky_hub[]={
 const unsigned char img_frame[]={
 #embed "textures/frame.png"
 };
+const unsigned char tex_title[]={ //texture 20
+#embed "textures/title.png"
+};
 #define NUM_TEX 20
 typedef struct {
     Texture2D items[NUM_TEX];
@@ -407,7 +410,8 @@ const unsigned char *texlist[] = {tex_grass,
                                 tex_hubstars,
                                 tex_turtlegrass,
                                 tex_wall,
-                                tex_turtlebody
+                                tex_turtlebody,
+                                tex_title
                                 };
 const int texsize[] = {sizeof(tex_grass),
                     sizeof(tex_cliff),
@@ -428,7 +432,8 @@ const int texsize[] = {sizeof(tex_grass),
                     sizeof(tex_hubstars),
                     sizeof(tex_turtlegrass),
                     sizeof(tex_wall),
-                    sizeof(tex_turtlebody)
+                    sizeof(tex_turtlebody),
+                    sizeof(tex_title)
                     };
 const unsigned char *skinlist[] = {tex_skin1};
 const int skinsize[] = {sizeof(tex_skin1)};
@@ -535,6 +540,9 @@ const unsigned char misc_icedcream[]={ //model 32 (not terrain)
 const unsigned char beeb_hat1[]={ //model 33 (not terrain)
 #embed "models/beebo/hats/hat1.glb"
 };
+const unsigned char title_meshbeam[]={ //model 34
+#embed "models/title/beam.glb"
+};
 const unsigned char *glblist[] = {hub_meshgrass,
                                 hub_meshcliff,
                                 title_meshlogo,
@@ -568,7 +576,8 @@ const unsigned char *glblist[] = {hub_meshgrass,
                                 turtle_meshturtlebody,
                                 misc_cloud,
                                 misc_icedcream,
-                                beeb_hat1
+                                beeb_hat1,
+                                title_meshbeam
                                 };
 const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(hub_meshcliff),
@@ -603,7 +612,8 @@ const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(turtle_meshturtlebody),
                     sizeof(misc_cloud),
                     sizeof(misc_icedcream),
-                    sizeof(beeb_hat1)
+                    sizeof(beeb_hat1),
+                    sizeof(title_meshbeam)
                     };
 
 const unsigned char *filepointer;
@@ -1081,7 +1091,7 @@ bool usechar = false;
 short map;
 uint8_t titleselt;
 void map_title(){
-    setamb(159,154,135,1);
+    setamb(159,154,135,.3);
     setsundir2(13,40);
     iswallrad=false;
     unloadassets();
@@ -1095,15 +1105,17 @@ void map_title(){
 	bgm.looping = true;
 	PlayMusicStream(bgm);
     gm3dlist newg;
+    int i=0;
     Terrain tmp; //robot 64 logo
-    tmp.x = 0.0f;
-    tmp.y = 0.0f;
-    tmp.z = 23.0f;
-    tmp.s = 0.03882770207f;
-    tmp.model = 2;
-    tmp.tex = 2;
-    newg.items[0] = tmp;
-    newg.count = 1;
+    tmp.x = 0;tmp.y = 0;tmp.z = 23;
+    tmp.s = .03882770207;tmp.model = 2;tmp.tex = 2;
+    newg.items[i] = tmp;i++;
+    //beams length in Z: 67.5 studs heh 67 67 67 67 67 67 67
+    tmp = (Terrain){0}; //beam1
+    tmp.x = 0;tmp.y = 0;tmp.z = 6.749;
+    tmp.s = 1;tmp.model = 34;tmp.tex = 20;
+    tmp.glow=true;newg.items[i] = tmp;i++;
+    newg.count = i;
     gm3d = newg;
     compileassets();
 }
