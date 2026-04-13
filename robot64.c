@@ -1099,7 +1099,7 @@ void map_title(){
     tmp.x = 0.0f;
     tmp.y = 0.0f;
     tmp.z = 23.0f;
-    tmp.s = 0.034f;//0.03882770207f;
+    tmp.s = 0.03882770207f;
     tmp.model = 2;
     tmp.tex = 2;
     newg.items[0] = tmp;
@@ -1644,8 +1644,9 @@ scuffedrays scuffedcol(Vector3 pos,float radius,Vector3 only,bool full){
                 if(!((x==0)&&(y==0)&&(z==0))&&Vector3DotProduct(dir,only)>=0&&(full||Vector3Length(ndir)==1)){
                     Ray r = (Ray){pos,dir};
                     for(i=0;i<gm3d.count;i++){
-                        if(!gm3d.items[i].nocol){
-                            RayCollision test = GetRayCollisionMesh(r,gm3d.items[i].mdl.meshes[0],gm3d.items[i].mat);
+                        Terrain *v = &gm3d.items[i];
+                        if(!v->nocol){
+                            RayCollision test = GetRayCollisionMesh(r,v->mdl.meshes[0],v->mat);
                             if(test.hit&&(test.distance<=radius)){
                                 float odist = Skibidigyats.results[j].distance;
                                 if(odist==0||(odist>=test.distance)){
@@ -3225,9 +3226,9 @@ int main(){
     p_sun = LoadModelFromMesh(GenMeshPlaneT(1,1,1,1,1,-1));
     p_sun.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_sun;
 	
-    camera.position = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.position = (Vector3){0,0,-10};
+    camera.target = (Vector3){0};
+    camera.up = (Vector3){0,1,0};
     camera.fovy = 70.0f;
     camera.projection = CAMERA_PERSPECTIVE;
     loadskybox();
