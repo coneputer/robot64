@@ -378,6 +378,9 @@ const unsigned char tex_sun[]={
 const unsigned char tex_sky_hub[]={
 #embed "skybox/hub.png"
 };
+const unsigned char img_frame[]={
+#embed "textures/frame.png"
+};
 #define NUM_TEX 20
 typedef struct {
     Texture2D items[NUM_TEX];
@@ -636,6 +639,7 @@ Texture2D icedicon;
 Texture2D candicon;
 Texture2D t_water;
 Texture2D t_sun;
+Texture2D t_frame;
 //sounds
 Sound s_load1;
 Sound s_load2;
@@ -1772,6 +1776,7 @@ Vector3 vistorsopos = {0};
 Matrix vistorsorot = {0};
 Vector3 shadowpos = {0,-10000,0};
 bool paused = false;
+uint8_t pausemenu = 0;
 uint8_t icedrot = 0;
 void drawbeeb(){
     Matrix torsopos = MatrixIdentity();
@@ -3040,6 +3045,9 @@ int main(){
     img = LoadImageFromMemory(".png",tex_sun,sizeof(tex_sun));
     t_sun = LoadTextureFromImage(img);SetTextureFilter(t_sun,TEXTURE_FILTER_BILINEAR);
     UnloadImage(img);
+    img = LoadImageFromMemory(".png",img_frame,sizeof(img_frame));
+    t_frame = LoadTextureFromImage(img);SetTextureFilter(t_frame,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
     
     loadskin(plrskin);
     
@@ -3272,12 +3280,14 @@ static void dotheframecrap(){
         if(paused){
             ResumeMusicStream(s_slide);
         }else{
-            EnableCursor();
+            if(oldrightcursor){
+                EnableCursor();
 #if defined(PLATFORM_WEB)
 #else
-            HideCursor();
+                HideCursor();
 #endif
-            SetMousePosition(mx,my);
+                SetMousePosition(mx,my);
+            }
             oldrightcursor=false;
             PauseMusicStream(s_slide);
         }
@@ -3374,7 +3384,7 @@ static void dotheframecrap(){
     UpdateDrawFrame();
     plroldpos = plrpos;
 }
-
+#define inset 36
 static void UpdateDrawFrame(void){
     BeginDrawing();
         
@@ -3534,7 +3544,6 @@ static void UpdateDrawFrame(void){
             Vector2 off = Vector2Scale(fixrotpos2(rot),sh*-0.03f);
             DrawTextureEx(spinny,Vector2Add((Vector2){(sw*.35f)+(sh*0.03f),(sh*.73f)+(titleselt*(sh*.1f))},off),rot,0.0078125f*(sh*0.06f),WHITE);
         }else{
-            int inset = 36;
             int ish = sh-inset;
             float uisize = (ish*.23f)+50;
             float xoffset = (sw-170)-uisize;
@@ -3598,8 +3607,17 @@ static void UpdateDrawFrame(void){
             }
         }
         if(paused){
+            DrawRectangleV((Vector2){0},(Vector2){sw,sh},(Color){17,17,17,77});
+            int ish = sh-inset;
+            float pausesh = ish*1.1;
+            float framesize = pausesh*0.76;
+            float framex = (sw/2)-framesize/2;
+            float framey = (pausesh/2)-(framesize/2)-ish*.1+inset;
+            DrawTextureEx(t_frame,(Vector2){framex,framey},0,framesize/512,WHITE);
+            
             Vector2 m = GetMousePosition();
-            r64text("Paused",sw/2,sh/2,sh*0.06f,.5f,.5f,WHITE);
+            r64text("Paused",sw/2,framey+(framesize*.047),framesize*.12,.5,0,WHITE);
+            
             r64text("Sensitivity:",sw/2,sh*0.55,sh*0.04f,.5f,.5f,WHITE);
             DrawRectangleV((Vector2){sw*.4,sh*.6},(Vector2){sw*.2,sh*.02},WHITE);
             DrawRectangleV((Vector2){sw*.395+sensitivity*sw*.2,sh*.59},(Vector2){sw*.01,sh*.04},GREEN);
