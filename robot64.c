@@ -945,6 +945,9 @@ Matrix trgetm(uint8_t i){
     deeznuts = MatrixMultiply(deeznuts,MatrixTranslate(gm3d.items[i].x,gm3d.items[i].y,gm3d.items[i].z));
     return deeznuts;
 }
+float mod(float a,float b){
+    return a-floor(a/b)*b;
+}
 void compileassets(){
     printf("compileassets1\n");
     int i;
@@ -1042,7 +1045,7 @@ void setsundir(float x,float y,float z){
 }
 void setsundir2(float cloc,float geog){
     float lat = (geog-23.5)*M_TORAD;
-    float lon = (fmodf(cloc,24)-6)*(15*M_TORAD);
+    float lon = (mod(cloc,24)-6)*(15*M_TORAD);
     float coslat = cos(lat);
     float coslon = cos(lon);
     float sinlat = sin(lat);
@@ -1797,6 +1800,9 @@ Matrix vistorsorot = {0};
 Vector3 shadowpos = {0,-10000,0};
 bool paused = false;
 uint8_t pausemenu = 0; //id of the menu the pausescreen currently shows
+int8_t pauseselt = 0; //id of the button thats selected
+float spinyx = .2;
+float spinyy = .2;
 uint8_t icedrot = 0;
 void drawbeeb(){
     Matrix torsopos = MatrixIdentity();
@@ -2934,7 +2940,7 @@ void stepchar(){
         if(Vector2Length((Vector2){yimh,yimv})>.0001||stillcam||camzoom==.5){
             camh+=yimh;
             camv+=yimv;
-            camh=fmodf(camh,360.0f);
+            camh=mod(camh,360.0f);
             if(camv>1.5*M_TODEG){
                 camv=1.5*M_TODEG;
             }else if(camv<-1.5*M_TODEG){
@@ -3554,7 +3560,7 @@ static void UpdateDrawFrame(void){
             r64text("Continue",sw/2,sh*.7f,sh*0.06f,.5f,0,WHITE);
             r64text("New Game",sw/2,sh*.8f,sh*0.06f,.5f,0,WHITE);
             r64text("Speedrun",sw/2,sh*.9f,sh*0.06f,.5f,0,WHITE);
-            float rot = fmodf(GetTime()*80.0f,360);
+            float rot = mod(GetTime()*80.0f,360);
             Vector2 off = Vector2Scale(fixrotpos2(rot),sh*-0.03f);
             DrawTextureEx(spinny,Vector2Add((Vector2){(sw*.35f)+(sh*0.03f),(sh*.73f)+(titleselt*(sh*.1f))},off),rot,0.0078125f*(sh*0.06f),WHITE);
         }else{
@@ -3628,13 +3634,33 @@ static void UpdateDrawFrame(void){
             float framex = (sw/2)-framesize/2;
             float framey = (pausesh/2)-(framesize/2)-ish*.1+inset;
             DrawTextureEx(t_frame,(Vector2){framex,framey},0,framesize/512,WHITE);
+            float sframesize = pausesh*0.8;
+            float sframex = (sw/2)-sframesize/2;
+            float sframey = (pausesh/2)-(sframesize/2)-ish*.1+inset;
+            float spinysize = sframesize*0.1;
             
             Vector2 m = GetMousePosition();
+            float srot = mod(GetTime()*80.0f,360);
+            Vector2 soff = Vector2Scale(fixrotpos2(srot),spinysize*-.5);
             switch(pausemenu){
                 case 0:
+                    float relmouse = m.y-(framey+(framesize*.24));
+                    int mousehover = floor(relmouse/(framesize*.1));
+                    bool ishovering = mod(relmouse,framesize*.1)<=framesize*.09
+                    &&mousehover>-1&&mousehover<7
+                    &&m.x>=framex&&m.x<=framex+framesize;
+                    if(ishovering){
+                        pauseselt=mousehover;
+                    }
+                    float hovery = sframey+(sframesize*(.24+pauseselt/10.0))+sframesize*.045;
+                    spinyy += (hovery-spinyy)*(dt*20);
+                    float hoverx = sframex+sframesize*.1+spinysize*.5;
+                    spinyx += (hoverx-spinyx)*(dt*20);
+                    DrawTextureEx(spinny,Vector2Add((Vector2){spinyx,spinyy},soff),srot,0.0078125f*spinysize,WHITE);
+                    
                     r64text("Paused",sw/2,framey+(framesize*.047),framesize*.12,.5,0,WHITE);
                     
-                    r64text("Resume",sw/2,framey+(framesize*.24),framesize*.09,.5,0,WHITE);
+                    r64text("Resume",sw/2,framey+(framesize*.24),framesize*.09,.5,0,WHITE); //id 0
                     r64text("Icecreams",sw/2,framey+(framesize*.34),framesize*.09,.5,0,WHITE);
                     r64text("Snapshot Mode",sw/2,framey+(framesize*.44),framesize*.09,.5,0,WHITE);
                     r64text("Clothing",sw/2,framey+(framesize*.54),framesize*.09,.5,0,WHITE);
