@@ -2058,7 +2058,7 @@ void drawbeeb(){
     }
     
     //where we draw everything
-    if(camzoomlerp>.2){
+    if(camzoomlerp>.2||plrgotice){
         DrawMesh(b_torso.meshes[0],b_torso.materials[1],MatrixMultiply(MatrixScale(0.9432819383,0.943246311,0.9435414885),torsopos));
         Matrix headposS = MatrixMultiply(MatrixScale(0.25f,0.25f,0.25f),headpos);
         DrawMesh(b_head.meshes[0],b_head.materials[1],headposS);
@@ -3734,6 +3734,13 @@ static void UpdateDrawFrame(void){
                     }
                     break;
             }
+        }
+        if(plrgotice){
+            int ish = sh-inset;
+            float ictexty = inset+ish*0.7;
+            float ictexts = ish*.08;
+            r64text("YOU GOT ICE CREAM!",sw/2,ictexty,ictexts,.5,0,WHITE);
+            r64text("Watch for rolling rocks 0x",sw/2,ictexty+ictexts,ictexts*.6,.5,0,WHITE);
         }
         //DONT PUT ANYTHING AFTER THIS YOU LITTLE DIDDYBLUD, this is the cursor draw
         if(!mouselock||paused){
