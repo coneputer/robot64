@@ -222,6 +222,9 @@ const unsigned char sfx_sa5[]={ //step A 5
 const unsigned char hub_bgm[]={
 #embed "music/hub world.ogg"
 };
+const unsigned char hub_bgmA[]={
+#embed "music/hub world (air).ogg"
+};
 const unsigned char hub_bgmW[]={
 #embed "music/hub-world (water).ogg"
 };
@@ -239,6 +242,9 @@ const unsigned char tutorial_bgmP[]={
 };
 const unsigned char turtle_bgm[]={
 #embed "music/snippy dippy.ogg"
+};
+const unsigned char turtle_bgmA[]={
+#embed "music/snippy dippy (air).ogg"
 };
 const unsigned char turtle_bgmW[]={
 #embed "music/snippy dippy (water).ogg"
@@ -1002,6 +1008,8 @@ void compileassets(){
     printf("compileassets2\n");
 }
 Music bgm;//0
+Music bgmA;//1
+bool canbgmA=false;
 Music bgmW;//2
 bool canbgmW=false;
 Music bgmP;//7
@@ -1020,6 +1028,10 @@ void unloadassets(){
     StopMusicStream(bgm);
     StopMusicStream(bgmP);
     UnloadMusicStream(bgm);
+    if(canbgmA){
+        StopMusicStream(bgmA);
+        UnloadMusicStream(bgmA);
+    }
     if(canbgmW){
         StopMusicStream(bgmW);
         UnloadMusicStream(bgmW);
@@ -1150,6 +1162,7 @@ void map_hub(){
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
     UnloadImage(img);
     bgm = LoadMusicStreamFromMemory(".ogg",hub_bgm,sizeof(hub_bgm));bgm.looping = true;PlayMusicStream(bgm);
+    bgmA = LoadMusicStreamFromMemory(".ogg",hub_bgmA,sizeof(hub_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
     bgmW = LoadMusicStreamFromMemory(".ogg",hub_bgmW,sizeof(hub_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
     bgmP = LoadMusicStreamFromMemory(".ogg",hub_bgmP,sizeof(hub_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);
     gm3dlist newg;
@@ -1303,6 +1316,7 @@ void map_tutorial(){
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
     UnloadImage(img);
     bgm = LoadMusicStreamFromMemory(".ogg",tutorial_bgm,sizeof(tutorial_bgm));bgm.looping = true;PlayMusicStream(bgm);
+    canbgmA=false;
     canbgmW=false;
     bgmP = LoadMusicStreamFromMemory(".ogg",tutorial_bgmP,sizeof(tutorial_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);
     img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
@@ -1456,6 +1470,7 @@ void map_turtle(){
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
     UnloadImage(img);
     bgm = LoadMusicStreamFromMemory(".ogg",turtle_bgm,sizeof(turtle_bgm));bgm.looping = true;PlayMusicStream(bgm);
+    bgmA = LoadMusicStreamFromMemory(".ogg",turtle_bgmA,sizeof(turtle_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
     bgmW = LoadMusicStreamFromMemory(".ogg",turtle_bgmW,sizeof(turtle_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
     bgmP = LoadMusicStreamFromMemory(".ogg",turtle_bgmP,sizeof(turtle_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);
     gm3dlist newg;
@@ -3556,7 +3571,8 @@ static void dotheframecrap(){
         }
         songplay=
         (plrgotice||trsing2)?67
-        :plrswimming?2
+        :plrflying&&canbgmA?1
+        :plrswimming&&canbgmW?2
         :0;
     }
     if(map==M_TITLE){
@@ -3572,6 +3588,9 @@ static void dotheframecrap(){
         }
     }
     SetMusicVolume(bgm,bgmvols[0]);UpdateMusicStream(bgm);
+    if(canbgmA){
+        SetMusicVolume(bgmA,bgmvols[1]);UpdateMusicStream(bgmA);
+    }
     if(canbgmW){
         SetMusicVolume(bgmW,bgmvols[2]);UpdateMusicStream(bgmW);
     }
