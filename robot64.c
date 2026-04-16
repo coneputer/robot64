@@ -1487,6 +1487,7 @@ void map_turtle(){
 
 //vars
 Camera camera = { 0 };
+Vector3 lastcampos = {0};
 uint32_t frame = 0;
 uint32_t bus = 0;
 
@@ -2128,6 +2129,9 @@ RayCollision beebtrywall(Vector3 dir, float raydist){
     return toilets;
 }
 
+#define MAX_SOUND_INSTANCES 100
+#define DOPPLER_SCALE .1f
+
 float CalculateAttenuation(float distance, float maxDistance, float rolloff)
 {
     // Legacy attenuation code
@@ -2138,6 +2142,22 @@ float CalculateAttenuation(float distance, float maxDistance, float rolloff)
 
     return attenuation;
 }
+struct SoundInstance {
+    int id; // must be unique
+    Sound sound;
+    Vector3 position;
+    Vector3 lastPosition;
+    float lastDist;
+    float maxDistance;
+    float rolloff;
+    float volumeModifier;
+    float pitchModifier;
+};
+struct ActiveSounds {
+    int count;
+    struct SoundInstance instances[MAX_SOUND_INSTANCES];
+};
+struct ActiveSounds activeSounds = {0};
 
 // Plays a sound at 3d coordinates. Usage: ConfigureSoundForPosition(camera, sound, (Vector3){x,y,z}, maxDistance);
 void ConfigureSoundForPosition(Camera listener, Sound sound, Vector3 position, float maxDist, float rolloff,float volumeModifier)
@@ -2158,6 +2178,34 @@ void ConfigureSoundForPosition(Camera listener, Sound sound, Vector3 position, f
 
     SetSoundVolume(sound, attenuation*volumeModifier);
     SetSoundPan(sound, pan);
+
+    // store sound for updating in the main loop
+    bool found = false;
+    for (int i = 0; i < activeSounds.count; i++) {
+        if (activeSounds.instances[i].sound.stream.buffer == sound.stream.buffer) {
+            found = true;
+            activeSounds.instances[i].lastPosition = activeSounds.instances[i].position;
+            activeSounds.instances[i].position = position;
+            activeSounds.instances[i].maxDistance = maxDist;
+            activeSounds.instances[i].rolloff = rolloff;
+            activeSounds.instances[i].volumeModifier = volumeModifier;
+            break;
+        }
+    }
+    if (!found && activeSounds.count < MAX_SOUND_INSTANCES) {
+        activeSounds.instances[activeSounds.count++] = (struct SoundInstance){ 
+            .id = activeSounds.count, 
+            .sound = sound, 
+            .position = position, 
+            .lastPosition = position, 
+            .maxDistance = maxDist, 
+            .rolloff = rolloff, 
+            .volumeModifier = volumeModifier,
+            .pitchModifier = 1.0f
+        };
+    } else {
+        TraceLog(LOG_WARNING, "Max sound instances reached, cannot track new sound.");
+    }
 }
 
 void PlaySoundAtPosition(Sound sound, Vector3 position, float *maxDist,float volumeModifier)
@@ -3450,9 +3498,33 @@ static void dotheframecrap(){
         SetMusicVolume(bgmW,bgmvols[2]);UpdateMusicStream(bgmW);
     }
     SetMusicVolume(bgmP,bgmvols[7]);UpdateMusicStream(bgmP);
+
+    // Calculate doppler for all positional sounds
+    float ft = GetFrameTime();
+    if (ft <= 0.0f) return;
+    Vector3 camVel = Vector3Scale(Vector3Subtract(camera.position, lastcampos), 1.0f / ft);
+    for (int i = 0; i < activeSounds.count; i++) {
+        struct SoundInstance *s = &activeSounds.instances[i];
+        Vector3 sourceVel = Vector3Scale(Vector3Subtract(s->position, s->lastPosition), 1.0f / ft);
+        Vector3 toSource = Vector3Subtract(s->position, camera.position);
+        float dist = Vector3Length(toSource);
+        if (dist > 0.1f) {
+            Vector3 dir = Vector3Scale(toSource, 1.0f / dist);
+            float listenerV = Vector3DotProduct(camVel, dir);
+            float sourceV = Vector3DotProduct(sourceVel, Vector3Negate(dir));
+            float relativeVelocity = listenerV + sourceV;
+            float c = 343.0f / DOPPLER_SCALE;
+            float pitch = Clamp((c + relativeVelocity) / c, 0.5f, 2.0f);
+            s->pitchModifier = pitch;
+            SetSoundPitch(s->sound, pitch);
+        }
+        s->lastPosition = s->position;
+    }
+
     UpdateMusicStream(s_slide);
     UpdateDrawFrame();
     plroldpos = plrpos;
+    lastcampos = camera.position;
 }
 #define inset 36
 static void UpdateDrawFrame(void){
@@ -3750,6 +3822,12 @@ static void UpdateDrawFrame(void){
         //except for debugging stuff because that oesnt really matter
         // DEBUGGGING TEXTs
         r64text(TextFormat("terrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
+        r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,80,20,0,0,WHITE);
+        //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
+        //for (i=0;i<activeSounds.count;i++){
+        //    struct SoundInstance *s = &activeSounds.instances[i];
+        //    r64text(TextFormat("sound %i: pos(%.2f, %.2f, %.2f) doppler: %.2f",i,s->position.x,s->position.y,s->position.z,1-s->pitchModifier),20,140+(i*30),20,0,0,WHITE);
+        //}
 
     EndDrawing();
 }
