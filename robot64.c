@@ -385,12 +385,15 @@ const unsigned char img_frame[]={
 const unsigned char tex_title[]={ //texture 20
 #embed "textures/title.png"
 };
-#define NUM_TEX 20
+const unsigned char tex_jetpack[]={
+#embed "textures/beebo/jetpack.png"
+};
+#define NUM_TEX 21
 typedef struct {
     Texture2D items[NUM_TEX];
     bool loaded[NUM_TEX];
 } LvlTexList;
-LvlTexList levtexs = {0};
+LvlTexList levtexs = {0}; //idk when im gonna use this (probably not cuz json maps are in progress)
 const unsigned char *texlist[] = {tex_grass,
                                 tex_cliff,
                                 tex_logo,
@@ -543,6 +546,12 @@ const unsigned char beeb_hat1[]={ //model 33 (not terrain)
 const unsigned char title_meshbeam[]={ //model 34
 #embed "models/title/beam.glb"
 };
+const unsigned char beeb_jetpack[]={ //model 35 (not terrain)
+#embed "models/beebo/jetpack.glb"
+};
+const unsigned char beeb_booster[]={ //model 36 (not terrain)
+#embed "models/beebo/booster.glb"
+};
 const unsigned char *glblist[] = {hub_meshgrass,
                                 hub_meshcliff,
                                 title_meshlogo,
@@ -577,7 +586,9 @@ const unsigned char *glblist[] = {hub_meshgrass,
                                 misc_cloud,
                                 misc_icedcream,
                                 beeb_hat1,
-                                title_meshbeam
+                                title_meshbeam,
+                                beeb_jetpack,
+                                beeb_booster
                                 };
 const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(hub_meshcliff),
@@ -613,7 +624,9 @@ const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(misc_cloud),
                     sizeof(misc_icedcream),
                     sizeof(beeb_hat1),
-                    sizeof(title_meshbeam)
+                    sizeof(title_meshbeam),
+                    sizeof(beeb_jetpack),
+                    sizeof(beeb_booster)
                     };
 
 const unsigned char *filepointer;
@@ -678,6 +691,8 @@ Model b_leg;
 Model b_tarm;
 Model b_barm;
 Model b_dot;
+Model b_jetpack;
+Model b_booster;
 Model p_break; //for breakables
 Model p_sun;
 
@@ -689,6 +704,7 @@ Model ml_icedcream;
 //textures
 Texture2D curskin;
 Texture2D bt_faces[5];
+Texture2D t_jetpack;
 
 //maphandling
 gm3dlist gm3d;
@@ -1521,6 +1537,10 @@ bool oplrg = false;
 bool plrdancing = false;
 bool plrgotice = false;
 bool plrswip = false;
+bool plrhasfly = false;
+bool plrflying = false;
+float plrflypitch = 0;
+float plrflyspeed = 0;
 Vector3 plrswippoint = (Vector3){0};
 uint8_t plrjumping = 0;
 uint8_t plrdjumptimer = 0;
@@ -2081,6 +2101,15 @@ void drawbeeb(){
         Matrix hatpos=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZa((Vector3){0,0,0}),headrot),(Vector3){0,.946,-.2},headrot),
         MatrixTranslate(headonlypos.x,headonlypos.y,headonlypos.z));
         DrawMesh(curhat.meshes[0],curhat.materials[1],MatrixMultiply(MatrixScale(0.0298034168,0.0298,0.02979860879),hatpos)); //originally only x
+        if(plrhasfly){
+            Matrix jetpos=MatrixMultiply(matrel(torsorot,(Vector3){0,.2,1},torsorot),
+            MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+            DrawMesh(b_jetpack.meshes[0],b_jetpack.materials[1],MatrixMultiply(MatrixScale(0.02470078114,0.02470538123,0.0247),jetpos));
+            float br = 1+rand()/(RAND_MAX*10.0);
+            Matrix jetbpos=MatrixMultiply(matrel(torsorot,(Vector3){0,-.6,1},torsorot),
+            MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+            DrawMesh(b_booster.meshes[0],b_booster.materials[1],MatrixMultiply(MatrixScale(0.01214169018*br,0.01214515657*br,0.01214*br),jetbpos));
+        }
     }
     if(plrgotice){
         Matrix charpos = MatrixTranslate(plrpos.x,plrpos.y,plrpos.z);
@@ -2241,6 +2270,8 @@ void stepchar(){
         debugmode = !debugmode;
     }
     
+    Vector3 camlook = Vector3Multiply(matlook(GetCameraMatrix(camera)),(Vector3){1,1,-1});
+    Vector3 camrightvector = Vector3Normalize(Vector3CrossProduct(camlook,(Vector3){0,1,0}));
     if(debugmode){
         plrvel = (Vector3){0};
         plrg=false;
@@ -2278,6 +2309,7 @@ void stepchar(){
             plrattack=false;
             plrwallrun=false;
             plrrolling=false;
+            plrflying=false;
             PlaySoundAtBeebo(s_land,1);
             walklerp=0;
             plrdjumptimer=0;
@@ -2351,6 +2383,7 @@ void stepchar(){
                 plrattack=false;
                 plrrolling=false;
                 plrsliding=false;
+                plrflying=false;
                 if(ledgetimer2==0&&!plrledgegrab){
                     RayCollision init = {0};
                     RayCollision bees = {0};
@@ -2409,6 +2442,7 @@ void stepchar(){
                 plrdancing=false;
             }
         }
+        pointrightvector = Vector3Normalize((Vector3){-plrpoint.z,0,plrpoint.x});
         plrgyro = Vector3RotateByAxisAngle(plrpoint,(Vector3){0,1},Vector3DotProduct(plrpoint,plrorient)<-.96f?fallvr:0); //plrorient is the char
         //rotand botand potand (lerpmaxxing)
         rotand+=((
@@ -2421,7 +2455,7 @@ void stepchar(){
                 : (plrattack) ? 0 //add pole to the () when its implemented, put a OR between it
                 //put skate here later
                 : plrswimming ? -1.4+fmax(-.8,fmin(.8,plrvel.y/20))
-                //put flying here later
+                : plrflying ? plrflypitch-1.4
                 : plrwallrun ? (1.5f-fabs(rotand))*fmax(0,Vector3DotProduct(cvu,(Vector3){0,1}))
                 : plrsliding ? -1.3f+fmax(-.8f,fmin(.8f,plrg?-Vector3DotProduct(plrpoint,skibidi.normal):plrvel.y/40))
                 : plrg ? (-Vector3Length(plrdir))/5-Vector3DotProduct(skibidi.normal,plrpoint)-(plrcrouch?1.2f:0)
@@ -2441,9 +2475,9 @@ void stepchar(){
             }
         }else{
             potand+=((
-                //put flying here
-                0
-                )-potand)*dt*8; //replace 8 with ((skate or flying) and 3 or 8) when both of these are put
+                plrflying ? fmax(-1,fmin(1,-Vector3DotProduct(plrorient,pointrightvector)*(Vector3Length(plrdir)*8)))
+                : 0
+                )-potand)*((plrflying)?(dt*3):(dt*8)); //replace 8 with ((skate or flying) and 3 or 8) when both of these are put
         }
         sliderp+=((plrsliding||plrswimming)-sliderp)*(dt*10); //add swimming with sliding using an OR when u do it
         wallerp+=(plrwallrun-wallerp)*(dt*10);
@@ -2531,6 +2565,12 @@ void stepchar(){
         float imp = 0;
         if(plrledgegrab||plrswimming){
             gravmult=0;
+        }else if(plrflying){
+            gravmult=0;
+            float dip = (plrflyspeed<1)?(1-plrflyspeed):0;
+            plrflypitch=fmin(1,fmax(-1,plrflypitch-(plrflypitch*(dt/2))-Vector3DotProduct(plrdir,camlook)/(1+dip*3)*(dt*1.3)-(plrflyspeed<1?dt:0)));
+            plrflyspeed=fmax(0,plrflyspeed-(plrflypitch)*dt);
+            plrpoint=rotvec(plrpoint,(Vector3){0,Vector3DotProduct(plrdir,camrightvector)*(dt*3.5),0});
         }else if(plrwallrun){
             imp = (fabs(Vector3DotProduct(plrdir,plrpoint))>.9)?0:1;
             plrpoint = qvecerp(plrpoint,Vector3Normalize(Vector3Add(Vector3Scale(plrwallnorm,-2),Vector3Scale(plrdir,imp))),dt*3);
@@ -2552,6 +2592,12 @@ void stepchar(){
                 Vector3 bforce = Vector3Scale(Vector3Subtract(plrledgepoint,plrpos),4800*P_BFORCE);//400
                 plrvel=Vector3Add(plrvel,bforce);
                 plrvel=Vector3Multiply(plrvel,(Vector3){.1,.1,.1}); //bdamp
+            }else if(plrflying){
+                Vector3 tpot = matlook(MatrixRotateXYZ((Vector3){plrflypitch,0,0}));
+                tpot = rotvec(tpot,(Vector3){0,atan2f(plrpoint.x,plrpoint.z)+pi,0});
+                Vector3 bforce=Vector3Scale(tpot,(150*P_BFORCE)*(plrflyspeed>3?(plrflyspeed/3+2):plrflyspeed));//50*P_BFORCE
+                plrvel=Vector3Add(plrvel,bforce);
+                plrvel=Vector3Multiply(plrvel,(Vector3){.95,.95,.95}); //bdamp
             }else if(plrwallrun){
                 Vector3 bforce = Vector3Add(Vector3Scale(plrpoint,imp*400*P_BFORCE /*150*/),Vector3Scale(plrwallnorm,-100*P_BFORCE));
                 plrvel=Vector3Add(plrvel,bforce);
@@ -2596,6 +2642,7 @@ void stepchar(){
                     plrlongjump=true;
                     plrattack=false;
                     poundtimer=24;
+                    plrflying=false;
                 }
             }
             if(IsKeyPressed(KEY_SPACE)){
@@ -2726,8 +2773,16 @@ void stepchar(){
                     plrlongjump=false;
                     plrsliding=true;
                     plrrolling=false;
+                    if(plrhasfly&&!plrdjump){
+                        plrflying = true;
+                        plrflypitch=.5;
+                        plrflyspeed=2;
+                        plrvel = Vector3Add(Vector3Scale(plrpoint,50),(Vector3){0,plrg?40:20});
+                        potand=(pi*2)*fallvr;
+                    }else{
+                        plrvel = Vector3Add(Vector3Scale(plrpoint,40),(Vector3){0,20}); //idk how to replicate cuz sometimes its 30 sometimes its not (in the og game)
+                    }
                     plrdjump=true;
-                    plrvel = Vector3Add(Vector3Scale(plrpoint,40),(Vector3){0,20}); //idk how to replicate cuz sometimes its 30 sometimes its not (in the og game)
                     plrg=false;
                     PlaySoundAtBeebo(s_dive,1);
                     plranchored=false;
@@ -2754,6 +2809,7 @@ void stepchar(){
                 plrsliding=false;
                 plrlongjump=false;
                 plrrolling=false;
+                plrflying=false;
                 potand+=pi*2;
                 if(plrswimming){
                     plrvel=Vector3Scale(plrvel,.5);
@@ -2915,6 +2971,7 @@ void stepchar(){
             plrledgegrab=false;
             plrrolling=false;
             plrdjump=true;
+            plrflying=false;
         }else if(plrswimming&&!inwatr){
             plrswimming=false;
             watertimer=180;
@@ -2974,7 +3031,6 @@ void stepchar(){
         camera.target = Vector3Add(plrpos,(Vector3){0,2,0});
         camera.position = Vector3Add(camera.target,Vector3Scale(plrorient,20));
     }else{
-        Vector3 camlook = Vector3Multiply(matlook(GetCameraMatrix(camera)),(Vector3){1,1,-1});
         if(IsKeyPressed(KEY_Q)){
             snapcam=true;
             snapto=Vector3Normalize((Vector3){-plrpoint.z,0,plrpoint.x});
@@ -3001,7 +3057,9 @@ void stepchar(){
             camh = -thing*M_TODEG;
         }
         if(!(Vector2Length((Vector2){yimh,yimv})>.2||stillcam||camzoom==.5)){
-            if(plrswimming){
+            if(plrflying){
+                camv+=(-(plrflypitch-.3)-(camv*M_TORAD))*(dt*M_TODEG);
+            }else if(plrswimming){
                 camv+=(-(botand+1)-(camv*M_TORAD))*(dt*M_TODEG);
             }else if(watertimer>0){
                 camv+=(.4-(camv*M_TORAD))*(dt*M_TODEG);
@@ -3035,6 +3093,11 @@ void stepchar(){
             }
         }
         UpdateCameraPro(&camera,(Vector3){0},(Vector3){0},camzoomlerp);
+    }
+    camera.fovy += ((plrflying?(70+plrflyspeed*3):70)-camera.fovy)*dt;
+    if(IsKeyPressed(KEY_H)){
+        plrhasfly=!plrhasfly;
+        plrflying=false;
     }
 }
 
@@ -3120,6 +3183,9 @@ int main(){
     UnloadImage(img);
     
     loadskin(plrskin);
+    img = LoadImageFromMemory(".png",tex_jetpack,sizeof(tex_jetpack));
+    t_jetpack = LoadTextureFromImage(img);SetTextureFilter(t_jetpack,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
     
     img = LoadImageFromMemory(".png",tex_face1,sizeof(tex_face1));
     bt_faces[0] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[0],TEXTURE_FILTER_BILINEAR);
@@ -3259,6 +3325,16 @@ int main(){
     //b_dot.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_plain;
     b_dot.materials[1].maps[MATERIAL_MAP_DIFFUSE].color = (Color){124,255,129,255};
     b_dot.materials[1].shader = shader;
+    prepmodel(glblist[35],glbsize[35]);
+    b_jetpack = LoadModel("tuffness.glb");
+    SetLoadFileDataCallback(NULL);
+    b_jetpack.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_jetpack;
+    b_jetpack.materials[1].shader = shader;
+    prepmodel(glblist[36],glbsize[36]);
+    b_booster = LoadModel("tuffness.glb");
+    SetLoadFileDataCallback(NULL);
+    b_booster.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_jetpack;
+    b_booster.materials[1].shader = shader;
     
     
     prepmodel(glblist[33],glbsize[33]);
@@ -3390,6 +3466,8 @@ static void dotheframecrap(){
         if(g06next>=.06){
             if(plrswip||(plrsliding&&plrg)){
                 particle(0,1,false,Vector3Subtract(plrpos,(Vector3){0,2.5,0}),1);
+            }else if(plrflying){
+                
             }else if((1-walklerp)*wallerp*(1-lederp)*(1-skaterp)>.6){
                 particle(0,1,false,Vector3Transform((Vector3){0},matrel(vistorso,(Vector3){0,0,-1},vistorsorot)),1);
             }
