@@ -2320,17 +2320,43 @@ void stepchar(){
         }
         oldrightcursor = rightcursor;
     }
-    if(IsKeyDown(KEY_UP)){
-        yimv-=dt*2.5*M_TODEG;
-    }
-    if(IsKeyDown(KEY_DOWN)){
-        yimv+=dt*2.5*M_TODEG;
-    }
-    if(IsKeyDown(KEY_LEFT)){
-        yimh-=dt*2.5*1.3*M_TODEG;
-    }
-    if(IsKeyDown(KEY_RIGHT)){
-        yimh+=dt*2.5*1.3*M_TODEG;
+    {
+        bool dUP = IsKeyDown(KEY_UP);
+        bool dDN = IsKeyDown(KEY_DOWN);
+        bool dRT = IsKeyDown(KEY_RIGHT);
+        bool dLF = IsKeyDown(KEY_LEFT);
+        if(abs(dUP-dDN)+abs(dRT-dLF)>0){
+            Vector2 addtoyim = Vector2Normalize((Vector2){dRT-dLF,dDN-dUP});
+            yimv+=addtoyim.y*(dt*2.5*M_TODEG);
+            yimh+=addtoyim.x*(dt*2.5*1.3*M_TODEG);
+            /*
+            if(dUP){
+                yimv-=dt*2.5*M_TODEG;
+            }
+            if(dDN){
+                yimv+=dt*2.5*M_TODEG;
+            }
+            if(dLF){
+                yimh-=dt*2.5*1.3*M_TODEG;
+            }
+            if(dRT){
+                yimh+=dt*2.5*1.3*M_TODEG;
+            }
+            */
+#if defined(PLATFORM_WEB)
+#else
+        }else{
+            Vector2 st2 = {GetGamepadAxisMovement(0,GAMEPAD_AXIS_RIGHT_X),
+            GetGamepadAxisMovement(0,GAMEPAD_AXIS_RIGHT_Y)};
+            if(Vector2Length(st2)>=.2){
+                if(Vector2Length(st2)>1){
+                    st2=Vector2Normalize(st2);
+                }
+                yimv+=st2.y*(dt*2.5*M_TODEG);
+                yimh+=st2.x*(dt*2.5*1.3*M_TODEG);
+            }
+#endif            
+        }
     }
     
     if(IsKeyPressed(KEY_G)){
@@ -2363,7 +2389,7 @@ void stepchar(){
     }else{
         int i;
         Vector3 forwardmover = (Vector3){sin((camh*pi)/-180),0,cos((camh*pi)/180)};
-        Vector3 sidemover = (Vector3){forwardmover.z,0,-forwardmover.x};
+        Vector3 sidemover = (Vector3){-forwardmover.z,0,forwardmover.x};
         
         Vector3 orientrightvector = Vector3Normalize((Vector3){-plrorient.z,0,plrorient.x});
         
@@ -2396,19 +2422,38 @@ void stepchar(){
         oplrg = plrg;
         plrdir = (Vector3){0};
         if(canmove){
-            if(IsKeyDown(KEY_W)){
-                plrdir = forwardmover;
+            bool kw=IsKeyDown(KEY_W);
+            bool ks=IsKeyDown(KEY_S);
+            bool ka=IsKeyDown(KEY_A);
+            bool kd=IsKeyDown(KEY_D);
+            if(abs(ka-kd)+abs(kw-ks)>0){
+                if(kw){
+                    plrdir = forwardmover;
+                }
+                if(ks){
+                    plrdir = Vector3Subtract(plrdir,forwardmover);
+                }
+                if(ka){
+                    plrdir = Vector3Subtract(plrdir,sidemover);
+                }
+                if(kd){
+                    plrdir = Vector3Add(plrdir,sidemover);
+                }
+                plrdir = Vector3Normalize(plrdir);
+#if defined(PLATFORM_WEB)
+#else
+            }else{
+                Vector2 st1 = {GetGamepadAxisMovement(0,GAMEPAD_AXIS_LEFT_X),
+                -GetGamepadAxisMovement(0,GAMEPAD_AXIS_LEFT_Y)};
+                if(Vector2Length(st1)>.3){
+                    if(Vector2Length(st1)>1){
+                        st1=Vector2Normalize(st1);
+                    }
+                    plrdir=Vector3Scale(forwardmover,st1.y);
+                    plrdir=Vector3Add(plrdir,Vector3Scale(sidemover,st1.x));
+                }
+#endif
             }
-            if(IsKeyDown(KEY_S)){
-                plrdir = Vector3Subtract(plrdir,forwardmover);
-            }
-            if(IsKeyDown(KEY_A)){
-                plrdir = Vector3Add(plrdir,sidemover);
-            }
-            if(IsKeyDown(KEY_D)){
-                plrdir = Vector3Subtract(plrdir,sidemover);
-            }
-            plrdir = Vector3Normalize(plrdir);
         }
         
         if(plrswip){
@@ -2596,8 +2641,18 @@ void stepchar(){
             force=200;
             damp=(Vector3){.9f,1,.9f};
         }
-        bool tojump = IsKeyDown(KEY_SPACE);
-        bool todive = IsKeyDown(KEY_LEFT_SHIFT);
+        bool tojump = IsKeyDown(KEY_SPACE)
+#if defined(PLATFORM_WEB)
+#else
+        ||IsGamepadButtonDown(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+#endif
+        ;
+        bool todive = IsKeyDown(KEY_LEFT_SHIFT)
+#if defined(PLATFORM_WEB)
+#else
+        ||IsGamepadButtonDown(0,GAMEPAD_BUTTON_RIGHT_TRIGGER_2)
+#endif
+        ;
         speedy*=plrwallrun?1:plrswimming?fmin(1,Vector3Length(plrdir)+abs(tojump-todive))*1.4:Vector3Length(plrdir);
         walklerp+=(speedy-walklerp)*dt*4;
         walktick+=dt*speedy*(1-fabs(fallerp));
@@ -2683,7 +2738,12 @@ void stepchar(){
         }
         //actions,like jumping
         if(canmove&&!plrswimming){
-            if(IsKeyPressed(KEY_SPACE)){
+            if(IsKeyPressed(KEY_SPACE)
+#if defined(PLATFORM_WEB)
+#else
+                ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+#endif
+            ){
                 plrdancing=false;
                 if(plrg){
                     particle(0,1,false,mpspar,1);
@@ -2768,13 +2828,18 @@ void stepchar(){
                     }
                 }
             }
-            if(IsKeyDown(KEY_LEFT_SHIFT)&&(plrg||plrattack)){
+            if(todive&&(plrg||plrattack)){
                 plrsliding=false;
                 plrcrouch=true;
             }else{
                 plrcrouch=false;
             }
-            if(IsKeyPressed(KEY_LEFT_SHIFT)){
+            if(IsKeyPressed(KEY_LEFT_SHIFT)
+#if defined(PLATFORM_WEB)
+#else
+                ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_TRIGGER_2)
+#endif
+            ){
                 if(plrledgegrab){
                     PlaySoundAtBeebo(s_jump2,1);
                     plrwallrun=false;
@@ -2797,7 +2862,12 @@ void stepchar(){
                     plrflying=false;
                 }
             }
-            if(IsKeyPressed(KEY_E)&&!plrattack&&!plrpound){
+            if((IsKeyPressed(KEY_E)
+#if defined(PLATFORM_WEB)
+#else
+                ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
+#endif
+            )&&!plrattack&&!plrpound){
                 plrdancing=false;
                 if(plrsliding){
                     if(plrg){ //slide jump
@@ -2855,7 +2925,13 @@ void stepchar(){
                     plranchored=false;
                 }
             }
-            if(IsKeyPressed(KEY_LEFT_CONTROL)&&plrg&&Vector3Length(plrdir)<.3&&!plrpole&&!plrsliding&&!plrcrouch&&!plrattack){
+            if((IsKeyPressed(KEY_LEFT_CONTROL)
+#if defined(PLATFORM_WEB)
+#else
+                ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_LEFT_FACE_LEFT)
+#endif
+            )
+                &&plrg&&Vector3Length(plrdir)<.3&&!plrpole&&!plrsliding&&!plrcrouch&&!plrattack){
                 plrdancing=true;
             }
         }
@@ -2864,7 +2940,7 @@ void stepchar(){
     #if defined(PLATFORM_WEB)
             IsKeyPressed(KEY_SLASH)||IsKeyPressed(KEY_ENTER)
     #else
-            IsKeyPressed(KEY_RIGHT_SHIFT)
+            IsKeyPressed(KEY_RIGHT_SHIFT)||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
     #endif
             )&&!plrattack&&!plrpound&&(plrjumping==0)){
                 plrdancing=false;
@@ -3098,7 +3174,12 @@ void stepchar(){
         camera.target = Vector3Add(plrpos,(Vector3){0,2,0});
         camera.position = Vector3Add(camera.target,Vector3Scale(plrorient,20));
     }else{
-        if(IsKeyPressed(KEY_Q)){
+        if(IsKeyPressed(KEY_Q)
+#if defined(PLATFORM_WEB)
+#else
+            ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_LEFT_TRIGGER_1)||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
+#endif
+        ||IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)){
             snapcam=true;
             snapto=Vector3Normalize((Vector3){-plrpoint.z,0,plrpoint.x});
             if(Vector3DotProduct(plrpoint,camlook)>=-.9){
@@ -3767,7 +3848,12 @@ static void UpdateDrawFrame(void){
                     h=true;
                 }
             }
-            if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)&&h&&(!trsing)){
+            if(((IsMouseButtonDown(MOUSE_BUTTON_LEFT)&&h)||IsKeyPressed(KEY_SPACE)
+#if defined(PLATFORM_WEB)
+#else
+                ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+#endif
+            )&&(!trsing)){
                 tomap = titleselt>0?M_TUTORIAL:M_HUB;
                 if(tomap==M_TUTORIAL){
                     tomapy=6;
