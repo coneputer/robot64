@@ -97,6 +97,7 @@ typedef struct {
     #define V_TALK_SIZ 1
 #define OTYPE_ICED 5
 #define OTYPE_WATR 6
+#define OTYPE_POLE 7
 typedef struct {
     Vector3 pos;
     Vector3 size;
@@ -141,16 +142,18 @@ const bool rg3[]={ //if can be activated by player alternate hitbox (usually spi
     true ,//OTYPE_CORK
     false,//OTYPE_TALK
     false,//OTYPE_ICED
-    true //OTYPE_WATR
+    true, //OTYPE_WATR
+    false //OTYPE_POLE
 };
 const bool gr3[]={ //if can be activated by beebo standing on it
     false,//OTYPE_NONE
     false,//OTYPE_TELE
-    false ,//OTYPE_CAND
+    false,//OTYPE_CAND
     true ,//OTYPE_CORK
     false,//OTYPE_TALK
     false,//OTYPE_ICED
-    false //OTYPE_WATR
+    false,//OTYPE_WATR
+    false //OTYPE_POLE
 };
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -200,6 +203,9 @@ const unsigned char sfx_break[]={
 };
 const unsigned char sfx_gotice[]={
 #embed "sfx/get-ice-cream.ogg"
+};
+const unsigned char sfx_pole[]={
+#embed "sfx/pole.ogg"
 };
 
 const unsigned char sfx_sa1[]={ //step A 1
@@ -703,6 +709,7 @@ Sound s_flip;
 Sound s_candy;
 Sound s_break;
 Sound s_gotice;
+Sound s_pole;
 
 Sound stepsA[5];
 //models
@@ -1308,6 +1315,8 @@ void map_hub(){
     tme.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_water;
     tme.mdl.materials[0].shader = shader;
     entlist.items[i]=tme;i++;
+    tme = crEnt(OTYPE_POLE,317.473,51.376,163.876,  2,20.233,2);
+    entlist.items[i]=tme;i++;
     
     tme = crEnt(OTYPE_CAND,-48,15,96  ,4,4,4);entlist.items[i]=tme;i++;
     tme = crEnt(OTYPE_CAND,-52,15,101  ,4,4,4);entlist.items[i]=tme;i++;
@@ -1567,6 +1576,8 @@ bool plrledgegrab=false;
 Vector3 plrledgepoint={0};
 bool plrswimming=false;
 bool plrpole=false;
+Vector3 plrpolepos={0};
+Vector3 plrpolesiz={0};
 bool oplrg = false;
 bool plrdancing = false;
 bool plrgotice = false;
@@ -2309,6 +2320,8 @@ uint8_t walltimer = 0;
 uint8_t swiptimer = 0;
 uint8_t icedtimer = 0;
 uint8_t watertimer = 0;
+bool plrdebounce=false;
+uint8_t plrdebouncetimer = 0;
 bool canmove = true;
 bool stillcam = true;
 bool snapcam = false;
@@ -2565,6 +2578,7 @@ void stepchar(){
                 plrpoint = qvecerp(plrpoint,plrdir,dt*3);
             }
             plrattack=false;
+        }else if(plrpole){
         }else if(Vector3Length(plrdir)>.2f&&(plrg&&plrtimeland<18)){
             if(plrcrouch){
                 plrpoint = qvecerp(plrpoint,plrdir,dt*5);
@@ -2612,13 +2626,13 @@ void stepchar(){
         }
         sliderp+=((plrsliding||plrswimming)-sliderp)*(dt*10); //add swimming with sliding using an OR when u do it
         wallerp+=(plrwallrun-wallerp)*(dt*10);
-        fallerp+=(((plrg||plrwallrun||plrsliding||plrswimming)?0:fallvr)-fallerp)*(dt*10); //add pole and skate, after plrsliding
+        fallerp+=(((plrg||plrwallrun||plrsliding||plrpole||plrswimming)?0:fallvr)-fallerp)*(dt*10); //add skate after swimming in here
         longerp+=(plrlongjump-longerp)*(dt*10);
         //roperp
         //holderp
         croucherp+=((plrcrouch&&plrg&&!plrsliding)-croucherp)*(dt*10);
         lederp+=(plrledgegrab-lederp)*(dt*10);
-        //polerp
+        polerp+=(plrpole-polerp)*(dt*10);
         swimerp+=(plrswimming-swimerp)*(dt*10);
         //skaterp
         //flamerp
@@ -2639,6 +2653,8 @@ void stepchar(){
             damp=Vector3Length(v2(plrvel))<50?((mg==0)?(Vector3){.94f,1,.94f}:(Vector3){.994f,1,.994f}):(Vector3){.994f,1,.994f};
             speedy=0;
             if((Vector3Length(plrvel)<10)&&(mg<1)&&plrg){plrsliding=false;}
+        }else if(plrpole){
+            speedy=1;
         }else if(plrattack){
             speedy=0;
             damp=(Vector3){.75f,plrjumping?1:.9f,.75f};
@@ -2694,7 +2710,7 @@ void stepchar(){
         if(complexcrap!=walkfx&&((!plrdjump&&!plrswimming)||plrwallrun||plrpole)){
             walkfx=complexcrap;
             if(plrpole){
-                
+                PlaySoundAtBeebo(s_pole,.5);
             }else{
                 PlaySoundAtBeebo(stepsA[rand()%5],1);
             }
@@ -2704,6 +2720,7 @@ void stepchar(){
             plrpos = Vector3Add(Vector3Scale(Vector3Normalize(v2(plrpos)),wallrad),(Vector3){0,plrpos.y,0});
         }
         float imp = 0;
+        float vy = 0;
         if(plrledgegrab||plrswimming){
             gravmult=0;
         }else if(plrflying){
@@ -2712,6 +2729,22 @@ void stepchar(){
             plrflypitch=fmin(1,fmax(-1,plrflypitch-(plrflypitch*(dt/2))-Vector3DotProduct(plrdir,camlook)/(1+dip*3)*(dt*1.3)-(plrflyspeed<1?dt:0)));
             plrflyspeed=fmax(0,plrflyspeed-(plrflypitch)*dt);
             plrpoint=rotvec(plrpoint,(Vector3){0,Vector3DotProduct(plrdir,camrightvector)*(dt*3.5),0});
+        }else if(plrpole){
+            gravmult=0;
+            plrrolling=false;
+            float crap = -Vector3DotProduct(plrdir,camlook);
+            vy = (plrpos.y>plrpolepos.y+plrpolesiz.y/2)?fmin(0,crap)
+                :(plrpos.y<plrpolepos.y-plrpolesiz.y/2+2)?fmax(0,crap)
+                :crap;
+            if(fabsf(vy)<.4){
+                vy=0;
+            }
+            if(Vector3Length(plrdir)>.3){
+                plrpoint=rotvec(plrpoint,(Vector3){0,vy==0?-(Vector3DotProduct(plrdir,camrightvector)*(dt*4)/pow(plrpolesiz.x,.5)):0,0});
+            }else if(plrpolesiz.x<8){
+                int sector = (int)floor(4*atan2f(-plrpoint.x,-plrpoint.z)/pi+.5)%8;
+                plrpoint=matlook(MatrixRotateXYZ((Vector3){0,sector*(pi/4),0}));
+            }
         }else if(plrwallrun){
             imp = (fabs(Vector3DotProduct(plrdir,plrpoint))>.9)?0:1;
             plrpoint = qvecerp(plrpoint,Vector3Normalize(Vector3Add(Vector3Scale(plrwallnorm,-2),Vector3Scale(plrdir,imp))),dt*3);
@@ -2739,6 +2772,11 @@ void stepchar(){
                 Vector3 bforce=Vector3Scale(tpot,(150*P_BFORCE)*(plrflyspeed>3?(plrflyspeed/3+2):plrflyspeed));//50*P_BFORCE
                 plrvel=Vector3Add(plrvel,bforce);
                 plrvel=Vector3Multiply(plrvel,(Vector3){.95,.95,.95}); //bdamp
+            }else if(plrpole){
+                Vector3 bforce = v2(Vector3Subtract(Vector3Subtract(plrpolepos,plrpos),Vector3Scale(plrpoint,plrpolesiz.x/2+1)));
+                bforce = Vector3Add(Vector3Scale(bforce,100),(Vector3){0,vy*100,0});//500,600
+                plrvel=Vector3Add(plrvel,bforce);
+                plrvel=Vector3Multiply(plrvel,(Vector3){.1,.1,.1}); //bdamp
             }else if(plrwallrun){
                 Vector3 bforce = Vector3Add(Vector3Scale(plrpoint,imp*400*P_BFORCE /*150*/),Vector3Scale(plrwallnorm,-100*P_BFORCE));
                 plrvel=Vector3Add(plrvel,bforce);
@@ -2809,6 +2847,14 @@ void stepchar(){
                         PlaySoundAtBeebo(s_jump,1);
                         fallvr*=-1;
                     }
+                }else if(plrpole){
+                    PlaySoundAtBeebo(s_jump2,1);
+                    plrpoint=Vector3Scale(plrpoint,-1);
+                    plrvel = Vector3Add(Vector3Scale(plrpoint,30),(Vector3){0,30});
+                    plrpole=false;
+                    plrdjump=false;
+                    plrdebounce=true;
+                    plrdebouncetimer=12;
                 }else if(plrledgegrab){
                     PlaySoundAtBeebo(s_jump2,1);
                     plrwallrun=false;
@@ -2886,7 +2932,7 @@ void stepchar(){
 #else
                 ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
 #endif
-            )&&!plrattack&&!plrpound){
+            )&&!plrattack&&!plrpound&&!plrpole){
                 plrdancing=false;
                 if(plrsliding){
                     if(plrg){ //slide jump
@@ -2961,7 +3007,7 @@ void stepchar(){
     #else
             IsKeyPressed(KEY_RIGHT_SHIFT)||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
     #endif
-            )&&!plrattack&&!plrpound&&(plrjumping==0)){
+            )&&!plrattack&&!plrpound&&(plrjumping==0)&&!plrpole){
                 plrdancing=false;
                 attacktimer=13;
                 plrjumping=12;
@@ -3055,6 +3101,12 @@ void stepchar(){
         if(watertimer>0){
             watertimer--;
         }
+        if(plrdebouncetimer>0){
+            plrdebouncetimer--;
+            if(plrdebouncetimer==0){
+                plrdebounce=false;
+            }
+        }
         //entity collision
         bool inwatr=false;
         if(entlist.count>0&&!trsing2){
@@ -3119,6 +3171,23 @@ void stepchar(){
                                 inwatr=true;
                             }
                             break;
+                        case OTYPE_POLE:
+                            if(!plrpole&&!plrswimming&&!plrwallrun&&!plrdebounce){
+                                plrpole=true;
+                                plrpolepos=v->pos;
+                                plrpolesiz=v->size;
+                                plrsliding=false;
+                                plrlongjump=false;
+                                plrpound=false;
+                                plrattack=false;
+                                plrpoint=Vector3Normalize(
+                                Vector3Multiply(
+                                matlook(MatrixLookAt(v2(plrpos),v2(plrpolepos),(Vector3){0,1,0})),
+                                (Vector3){-1,0,1}
+                                )
+                                );
+                            }
+                            break;
                     }
                 }
             }
@@ -3166,7 +3235,7 @@ void stepchar(){
             raydist += Vector3Length(v2(plrvel))/30;
         }
         oskibidi=skibidi;
-        if(plrjumping==0&&!plrswimming){
+        if(plrjumping==0&&!plrswimming&&!plrpole){
             skibidi = beebtryground((Vector3){0},raydist);
             if(!plrg){
                 skibidi = beebtryground(Vector3Scale(plrorient,.9f),raydist);
@@ -3415,6 +3484,9 @@ int main(){
     UnloadWave(wav);
     wav = LoadWaveFromMemory(".ogg",sfx_gotice,sizeof(sfx_gotice));
     s_gotice = LoadSoundFromWave(wav);
+    UnloadWave(wav);
+    wav = LoadWaveFromMemory(".ogg",sfx_pole,sizeof(sfx_pole));
+    s_pole = LoadSoundFromWave(wav);
     UnloadWave(wav);
     
     wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
@@ -3843,6 +3915,10 @@ static void UpdateDrawFrame(void){
                                 );
                                 DrawMesh(v->mdl.meshes[0],v->mdl.materials[0],mat);
                                 rlEnableBackfaceCulling();
+                                break;
+                            case OTYPE_POLE:
+                                Vector3 thing=(Vector3){0,v->size.y/2,0};
+                                DrawCylinderEx(Vector3Subtract(v->pos,thing),Vector3Add(v->pos,thing),2,2,8,GREEN);
                                 break;
                         }
                     }
