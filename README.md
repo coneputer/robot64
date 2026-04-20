@@ -6,6 +6,10 @@ raylib (used for this, specifically the itch.io installer): https://raylib.com
 zKevin (roblox) for the original game (and letting me upload this to github)  
 LuaW1z and UncagedTwistedMania (roblox) for the decomp this is based off of (and letting me uplaod aswell)
 
+# Debug controls
+Press `G` to noclip  
+Press `H` to toggle jetpack (temporary?)
+
 # Compiling
 you need mingw64 version of gcc to do this  
 
