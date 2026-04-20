@@ -2088,6 +2088,11 @@ void drawbeeb(){
             armDpos = materp(armDpos,newarmD,rollerp);
         }
     }
+    torsoonlypos = Vector3Transform((Vector3){0},torsopos);
+    torsorot = torsopos;
+    torsorot.m12 = 0.0f;
+    torsorot.m13 = 0.0f;
+    torsorot.m14 = 0.0f;
     
     vistorso = torsopos;
     vistorsopos = torsoonlypos;
