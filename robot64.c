@@ -1863,6 +1863,7 @@ uint8_t faceid = 0;
 Matrix vistorso = {0};
 Vector3 vistorsopos = {0};
 Matrix vistorsorot = {0};
+Vector3 visjetpos = {0};
 Vector3 shadowpos = {0,-10000,0};
 bool paused = false;
 uint8_t pausemenu = 0; //id of the menu the pausescreen currently shows
@@ -2146,9 +2147,10 @@ void drawbeeb(){
         Matrix hatpos=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZa((Vector3){0,0,0}),headrot),(Vector3){0,.946,-.2},headrot),
         MatrixTranslate(headonlypos.x,headonlypos.y,headonlypos.z));
         DrawMesh(curhat.meshes[0],curhat.materials[1],MatrixMultiply(MatrixScale(0.0298034168,0.0298,0.02979860879),hatpos)); //originally only x
+        
+        Matrix jetpos=MatrixMultiply(matrel(torsorot,(Vector3){0,.2,1},torsorot),
+        MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
         if(plrhasfly){
-            Matrix jetpos=MatrixMultiply(matrel(torsorot,(Vector3){0,.2,1},torsorot),
-            MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
             DrawMesh(b_jetpack.meshes[0],b_jetpack.materials[1],MatrixMultiply(MatrixScale(0.02470078114,0.02470538123,0.0247),jetpos));
             float br = 1+rand()/(RAND_MAX*10.0);
             Matrix jetbpos=MatrixMultiply(matrel(torsorot,(Vector3){0,-.6,1},torsorot),
@@ -2159,7 +2161,7 @@ void drawbeeb(){
             MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
             DrawMesh(b_pack.meshes[0],b_pack.materials[1],MatrixMultiply(MatrixScale(.33,.8403361345,.3229527105),packpos));
         }
-        
+        visjetpos = Vector3Transform((Vector3){0},jetpos);
     }
     if(plrgotice){
         Matrix charpos = MatrixTranslate(plrpos.x,plrpos.y,plrpos.z);
@@ -2491,7 +2493,7 @@ void stepchar(){
         if(plrswip){
             plrpoint=plrswippoint;
             plrdir=(Vector3){0};
-        }else if(plrg&&!plrswimming&&Vector3Length(plrdir)>.3&&Vector3DotProduct(plrdir,plrorient)<=-.5&&Vector3Length(v2(plrvel))>10&&walklerp>.7){
+        }else if(plrg&&!plrswimming&&Vector3Length(plrdir)>.3&&Vector3DotProduct(plrdir,plrorient)<=-.5&&Vector3Length(v2(plrvel))>10&&walklerp>.7&&!plrdebounce){
             plrswip=true;
             plrswippoint=plrorient;
             swiptimer=18;
@@ -2500,7 +2502,7 @@ void stepchar(){
         Vector3 pointrightvector = Vector3Normalize((Vector3){-plrpoint.z,0,plrpoint.x});
         bool plroldwall = plrwallrun;
         plrwallrun=false;
-        if(!plrg&&!plrpole&&!plrswimming&&walltimer==0){             //wallrun detect
+        if(!plrg&&!plrpole&&!plrswimming&&walltimer==0&&!plrdebounce){             //wallrun detect
             Vector3 side = plrpoint;
             float sidelen = 3;
             toilets = beebtrywall(side,sidelen);
@@ -2763,9 +2765,11 @@ void stepchar(){
                 plrvel=Vector3Add(plrvel,bforce);
                 plrvel=Vector3Multiply(plrvel,(Vector3){.9,.9,.9}); //bdamp
             }else if(plrledgegrab){
-                Vector3 bforce = Vector3Scale(Vector3Subtract(plrledgepoint,plrpos),4800*P_BFORCE);//400
-                plrvel=Vector3Add(plrvel,bforce);
-                plrvel=Vector3Multiply(plrvel,(Vector3){.1,.1,.1}); //bdamp
+                if(!plrdebounce){
+                    Vector3 bforce = Vector3Scale(Vector3Subtract(plrledgepoint,plrpos),4800*P_BFORCE);//400
+                    plrvel=Vector3Add(plrvel,bforce);
+                    plrvel=Vector3Multiply(plrvel,(Vector3){.1,.1,.1}); //bdamp
+                }
             }else if(plrflying){
                 Vector3 tpot = matlook(MatrixRotateXYZ((Vector3){plrflypitch,0,0}));
                 tpot = rotvec(tpot,(Vector3){0,atan2f(plrpoint.x,plrpoint.z)+pi,0});
@@ -2865,11 +2869,15 @@ void stepchar(){
                         plrvel=Vector3Add(Vector3Add(v2(plrvel),(Vector3){0,20}),Vector3Scale(plrpoint,-50));
                         botand=pi*-2;
                         plrjumping=12;
+                        plrdebounce=true;
+                        plrdebouncetimer=12;
                     }else{
                         plrvel = Vector3Add((Vector3){0,30,0},Vector3Scale(pointrightvector,10));
                         rotand++;
                         ledgetimer=24;
                         plrjumping=24;
+                        plrdebounce=true;
+                        plrdebouncetimer=24;
                     }
                 }else if(plrwallrun){
                     PlaySoundAtBeebo(s_jump2,1);
@@ -2914,6 +2922,8 @@ void stepchar(){
                     plrjumping=12;
                     ledgetimer2=12;
                     walltimer=6;
+                    plrdebounce=true;
+                    plrdebouncetimer=12;
                 }else if(!plrg&&!plrwallrun&&!plrattack&&!plrpound&&!plrswimming&&!plrpole){   //pound
                     plrpound=true;
                     plrrolling=true;
@@ -2944,6 +2954,10 @@ void stepchar(){
                         plrvel=Vector3Add(v2(plrvel),(Vector3){0,20});
                         PlaySoundAtBeebo(s_jump2,1);
                         botand = pi*2;
+                    }else if(plrflying&&!plrdebounce){
+                        plrdebounce=true;
+                        plrdebouncetimer=30;
+                        potand+=(pi*2)*fallvr;
                     }
                 }else if(plrledgegrab){
                     PlaySoundAtBeebo(s_jump2,1);
@@ -2955,11 +2969,15 @@ void stepchar(){
                         plrvel=Vector3Add(Vector3Add(v2(plrvel),(Vector3){0,20}),Vector3Scale(plrpoint,-50));
                         botand=pi*-2;
                         plrjumping=12;
+                        plrdebounce=true;
+                        plrdebouncetimer=12;
                     }else{
                         plrvel = Vector3Add((Vector3){0,30,0},Vector3Scale(pointrightvector,10));
                         rotand++;
                         ledgetimer=24;
                         plrjumping=24;
+                        plrdebounce=true;
+                        plrdebouncetimer=24;
                     }
                 }else if(plrwallrun){
                     PlaySoundAtBeebo(s_jump2,1);
@@ -3134,11 +3152,14 @@ void stepchar(){
                 if((!v->disabled)&&(ischbox||isbsbox||isgrbox)){
                     switch(v->type){
                         case OTYPE_TELE:
-                            tomap = findvar(v->uid,V_TELE_TOMAP);
-                            tomapx = findvar(v->uid,V_TELE_TOX);
-                            tomapy = findvar(v->uid,V_TELE_TOY);
-                            tomapz = findvar(v->uid,V_TELE_TOZ);
-                            transition(true);
+                            if(!plrdebounce){
+                                plrdebounce=true;
+                                tomap = findvar(v->uid,V_TELE_TOMAP);
+                                tomapx = findvar(v->uid,V_TELE_TOX);
+                                tomapy = findvar(v->uid,V_TELE_TOY);
+                                tomapz = findvar(v->uid,V_TELE_TOZ);
+                                transition(true);
+                            }
                             break;
                         case OTYPE_CAND:
                             addvar(v->uid,0,0.2);
@@ -3334,6 +3355,7 @@ void stepchar(){
     if(IsKeyPressed(KEY_H)){
         plrhasfly=!plrhasfly;
         plrflying=false;
+        particle(0,8,true,vistorsopos,1);
     }
 }
 
@@ -3720,7 +3742,11 @@ static void dotheframecrap(){
             if(plrswip||(plrsliding&&plrg)){
                 particle(0,1,false,Vector3Subtract(plrpos,(Vector3){0,2.5,0}),1);
             }else if(plrflying){
-                
+                Vector3 pos=Vector3Transform((Vector3){0},
+                    MatrixMultiply(matrel(vistorsorot,(Vector3){bus%2==0?-.3:.3,-.9,-.2},vistorsorot),
+                    MatrixTranslate(visjetpos.x,visjetpos.y,visjetpos.z))
+                );
+                particle(0,1,false,pos,.4);
             }else if((1-walklerp)*wallerp*(1-lederp)*(1-skaterp)>.6){
                 particle(0,1,false,Vector3Transform((Vector3){0},matrel(vistorso,(Vector3){0,0,-1},vistorsorot)),1);
             }
@@ -4045,6 +4071,7 @@ static void UpdateDrawFrame(void){
                     usechar=true;
                     tomapid(tomap);
                     transition(false);
+                    plrdebounce=false;
                 }
             }else{
                 trsing = false;
@@ -4132,6 +4159,9 @@ static void UpdateDrawFrame(void){
             r64text("YOU GOT ICE CREAM!",sw/2,ictexty,ictexts,.5,0,WHITE);
             r64text("Watch for rolling rocks 0x",sw/2,ictexty+ictexts,ictexts*.6,.5,0,WHITE);
         }
+        
+        
+        //DrawRectangleV((Vector2){0},(Vector2){sw,inset},(Color){31,31,31,127}); //roblox topbar replica
         //DONT PUT ANYTHING AFTER THIS YOU LITTLE DIDDYBLUD, this is the cursor draw
         if(!mouselock||paused){
             DrawTextureEx(curstx,(Vector2){mx-1,my-1},0,1,WHITE);
