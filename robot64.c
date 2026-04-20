@@ -3374,6 +3374,7 @@ int main(){
     // Initialization
     //--------------------------------------------------------------------------------------
     //SetConfigFlags(FLAG_WINDOW_TRANSPARENT);
+    SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(960, 540, "Robot 64");
     rlEnableDepthTest();
     BeginDrawing();
