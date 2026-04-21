@@ -98,6 +98,9 @@ typedef struct {
 #define OTYPE_ICED 5
 #define OTYPE_WATR 6
 #define OTYPE_POLE 7
+#define OTYPE_ICDR 8
+    #define V_ICDR_TERRAI 0
+    #define V_ICDR_REQ 1
 typedef struct {
     Vector3 pos;
     Vector3 size;
@@ -143,7 +146,8 @@ const bool rg3[]={ //if can be activated by player alternate hitbox (usually spi
     false,//OTYPE_TALK
     false,//OTYPE_ICED
     true, //OTYPE_WATR
-    false //OTYPE_POLE
+    false,//OTYPE_POLE
+    false //OTYPE_ICDR
 };
 const bool gr3[]={ //if can be activated by beebo standing on it
     false,//OTYPE_NONE
@@ -153,7 +157,8 @@ const bool gr3[]={ //if can be activated by beebo standing on it
     false,//OTYPE_TALK
     false,//OTYPE_ICED
     false,//OTYPE_WATR
-    false //OTYPE_POLE
+    false,//OTYPE_POLE
+    false //OTYPE_ICDR
 };
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -206,6 +211,9 @@ const unsigned char sfx_gotice[]={
 };
 const unsigned char sfx_pole[]={
 #embed "sfx/pole.ogg"
+};
+const unsigned char sfx_icedoor[]={
+#embed "sfx/unlock-door.ogg"
 };
 
 const unsigned char sfx_sa1[]={ //step A 1
@@ -408,6 +416,9 @@ const unsigned char img_stick2[]={
 };
 const unsigned char tex_sky_turtle[]={
 #embed "skybox/turtle.png"
+};
+const unsigned char tex_icedoor[]={
+#embed "textures/lock2.png"
 };
 #define NUM_TEX 21
 typedef struct {
@@ -692,6 +703,7 @@ Texture2D t_sun;
 Texture2D t_frame;
 Texture2D t_3dUI;
 Texture2D t_stick2;
+Texture2D t_icedoor;
 //sounds
 float soundRolloffGlobal = 0.05f; //rolloff for sound attenuation, higher is quieter
 
@@ -710,6 +722,7 @@ Sound s_candy;
 Sound s_break;
 Sound s_gotice;
 Sound s_pole;
+Sound s_icedoor;
 
 Sound stepsA[5];
 //models
@@ -1046,9 +1059,6 @@ bool iswallrad=false;
 int wallrad=0;
 void unloadassets(){
     printf("unloadassets1\n");
-    entlist = (EntTL){0};
-    entlistV = (EntVL){0};
-    nextuid = 0;
     UnloadTexture(skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture);
     StopMusicStream(bgm);
     StopMusicStream(bgmP);
@@ -1074,6 +1084,14 @@ void unloadassets(){
             UnloadModel(gm3d.items[i].mdl);
         }
     }
+    for(i=0;i<entlist.count;i++){
+        if(entlist.items[i].type==OTYPE_WATR){
+            UnloadModel(entlist.items[i].mdl);
+        }
+    }
+    entlist = (EntTL){0};
+    entlistV = (EntVL){0};
+    nextuid = 0;
     printf("unloadassets2\n");
 }
 Shader skyshad;
@@ -1137,6 +1155,21 @@ Entity spawnBreak(float x,float y,float z){
     gm3d.items[gm3d.count]=t;
     Entity e=crEnt(OTYPE_CORK,x,y,z,8,8,8);
     addvar(e.uid,V_CORK_TERRAI,gm3d.count);
+    gm3d.count++;
+    return e;
+}
+Entity spawnIcedoor(float x,float y,float z,float sx,float sy,float sz,int req){
+    Terrain t={0};
+    t.x=x;t.y=y;t.z=z;t.s=1;
+    t.mdl=LoadModelFromMesh(GenMeshCube(sx,sy,sz));
+    t.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_icedoor;
+    t.gen=true;
+    t.plain=true;
+    t.glow=true;
+    gm3d.items[gm3d.count]=t;
+    Entity e=crEnt(OTYPE_ICDR,x,y,z,sx,sy,sz);
+    addvar(e.uid,V_ICDR_TERRAI,gm3d.count);
+    addvar(e.uid,V_ICDR_REQ,req);
     gm3d.count++;
     return e;
 }
@@ -1317,6 +1350,11 @@ void map_hub(){
     entlist.items[i]=tme;i++;
     tme = crEnt(OTYPE_POLE,317.473,51.376,163.876,  2,20.233,2);
     entlist.items[i]=tme;i++;
+    entlist.items[i]=spawnIcedoor(-32.7,25.05,195.39, 1,12.8,20 ,1);i++;
+    entlist.items[i]=spawnIcedoor(79.5,25.15,195.39, 1,13,20 ,8);i++;
+    entlist.items[i]=spawnIcedoor(123.3,25.15,195.39, 1,13,20 ,16);i++;
+    entlist.items[i]=spawnIcedoor(78.62,56.225,195.435, 1,12.75,19.77 ,20);i++;
+    entlist.items[i]=spawnIcedoor(-9.88,57.225,195.435, 24.824,14.75,25.185 ,32);i++;
     
     tme = crEnt(OTYPE_CAND,-48,15,96  ,4,4,4);entlist.items[i]=tme;i++;
     tme = crEnt(OTYPE_CAND,-52,15,101  ,4,4,4);entlist.items[i]=tme;i++;
@@ -3214,6 +3252,16 @@ void stepchar(){
                                 );
                             }
                             break;
+                        case OTYPE_ICDR:
+                            if(icedcream>findvar(v->uid,V_ICDR_REQ)-.5){
+                                PlaySound(s_icedoor);
+                                bgmvols[0]=0;
+                                int z = findvar(v->uid,V_ICDR_TERRAI);
+                                gm3d.items[z].nocol=true;
+                                gm3d.items[z].hide=true;
+                                v->disabled=true;
+                            }
+                            break;
                     }
                 }
             }
@@ -3451,6 +3499,10 @@ int main(){
     img = LoadImageFromMemory(".png",img_stick2,sizeof(img_stick2));
     t_stick2 = LoadTextureFromImage(img);SetTextureFilter(t_stick2,TEXTURE_FILTER_BILINEAR);
     UnloadImage(img);
+    img = LoadImageFromMemory(".png",tex_icedoor,sizeof(tex_icedoor));
+    t_icedoor = LoadTextureFromImage(img);
+    SetTextureWrap(t_icedoor,TEXTURE_WRAP_REPEAT);SetTextureFilter(t_icedoor,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
     
     loadskin(plrskin);
     img = LoadImageFromMemory(".png",tex_jetpack,sizeof(tex_jetpack));
@@ -3515,6 +3567,9 @@ int main(){
     UnloadWave(wav);
     wav = LoadWaveFromMemory(".ogg",sfx_pole,sizeof(sfx_pole));
     s_pole = LoadSoundFromWave(wav);
+    UnloadWave(wav);
+    wav = LoadWaveFromMemory(".ogg",sfx_icedoor,sizeof(sfx_icedoor));
+    s_icedoor = LoadSoundFromWave(wav);
     UnloadWave(wav);
     
     wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
