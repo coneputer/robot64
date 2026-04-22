@@ -1848,10 +1848,12 @@ double trstart;
 bool trsing;
 bool trsing2; //enabled  and disabled when trs sounds plays
 bool trsto;
+uint8_t trstype = 0;
 short tomap;
 float tomapx = 0;
 float tomapy = 100;
 float tomapz = 0;
+Vector3 safecf = {0};
 bool loading;
 uint8_t loadstate;
 void transition(bool to){
@@ -1867,6 +1869,7 @@ void transition(bool to){
         loading=false;
         //mapstuff, might make a toggle
         plrpos = (Vector3){tomapx,tomapy,tomapz};
+        safecf=plrpos;
         plrvel = (Vector3){0};
     }
 }
@@ -3201,7 +3204,7 @@ void stepchar(){
                                 tomapx = findvar(v->uid,V_TELE_TOX);
                                 tomapy = findvar(v->uid,V_TELE_TOY);
                                 tomapz = findvar(v->uid,V_TELE_TOZ);
-                                transition(true);
+                                trstype=0;transition(true);
                             }
                             break;
                         case OTYPE_CAND:
@@ -3330,6 +3333,10 @@ void stepchar(){
             plrpos = Vector3Add(plrpos,(Vector3){0,-croucherp,0});
         }else{
             skibidi = (RayCollision){0};
+        }
+        if(plrpos.y-1<-400&&!plrdebounce){
+            trstype=1;transition(true);
+            plrdebounce=true;
         }
     }
     if(plrgotice){
@@ -3704,6 +3711,7 @@ int main(){
     camera.projection = CAMERA_PERSPECTIVE;
     loadskybox();
     map_title();
+    transition(false);
     SetExitKey(KEY_NULL);
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(dotheframecrap, 60, 1);
@@ -4056,7 +4064,7 @@ static void UpdateDrawFrame(void){
                     tomapy=15.02;
                     tomapz=56.217;
                 }
-                transition(true);
+                trstype=0;transition(true);
             }
             r64text("Continue",sw2,sh*.7f,sh*0.06f,.5f,0,WHITE);
             r64text("New Game",sw2,sh*.8f,sh*0.06f,.5f,0,WHITE);
@@ -4119,20 +4127,40 @@ static void UpdateDrawFrame(void){
                 DrawRectangleV((Vector2){0,pos.y+s},(Vector2){sw,sh},BLACK);
             }else if(trsto){
                 DrawRectangleV((Vector2){0},(Vector2){sw,sh},BLACK);
-                if(loadstate==0){
-                    StopMusicStream(bgm);
-                    loadstate=1;
-                    usechar=false;
-                }else if(loadstate==1){
-                    if(t>1){
-                        loading=true;
-                        loadstate=2;
-                    }
-                }else if(loadstate==2){
-                    usechar=true;
-                    tomapid(tomap);
-                    transition(false);
-                    plrdebounce=false;
+                switch(trstype){
+                    case 0:
+                        if(loadstate==0){
+                            StopMusicStream(bgm);
+                            loadstate=1;
+                            usechar=false;
+                        }else if(loadstate==1){
+                            if(t>1){
+                                loading=true;
+                                loadstate=2;
+                            }
+                        }else if(loadstate==2){
+                            usechar=true;
+                            tomapid(tomap);
+                            transition(false);
+                            plrdebounce=false;
+                        }
+                        break;
+                    case 1:
+                        if(loadstate==0){
+                            loadstate=1;
+                            plranchored=true;
+                        }else if(loadstate==1){
+                            if(t>1.4){
+                                loadstate=2;
+                            }
+                        }else if(loadstate==2){
+                            plranchored=false;
+                            transition(false);
+                            plrdebounce=false;
+                            plrsliding=false;plrflying=false;plrlongjump=false;plrpound=false;plrrolling=false; //add skate before rolling
+                            plrpos=safecf;
+                        }
+                        break;
                 }
             }else{
                 trsing = false;
