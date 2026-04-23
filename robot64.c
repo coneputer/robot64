@@ -215,6 +215,9 @@ const unsigned char sfx_pole[]={
 const unsigned char sfx_icedoor[]={
 #embed "sfx/unlock-door.ogg"
 };
+const unsigned char sfx_cancel[]={
+#embed "sfx/cancel.ogg"
+};
 
 const unsigned char sfx_sa1[]={ //step A 1
 #embed "sfx/sa1.ogg"
@@ -723,6 +726,7 @@ Sound s_break;
 Sound s_gotice;
 Sound s_pole;
 Sound s_icedoor;
+Sound s_cancel;
 
 Sound stepsA[5];
 //models
@@ -3578,6 +3582,9 @@ int main(){
     wav = LoadWaveFromMemory(".ogg",sfx_icedoor,sizeof(sfx_icedoor));
     s_icedoor = LoadSoundFromWave(wav);
     UnloadWave(wav);
+    wav = LoadWaveFromMemory(".ogg",sfx_cancel,sizeof(sfx_cancel));
+    s_cancel = LoadSoundFromWave(wav);
+    UnloadWave(wav);
     
     wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
     stepsA[0] = LoadSoundFromWave(wav);
@@ -4231,6 +4238,8 @@ static void UpdateDrawFrame(void){
                                 case 4:
                                     stillcam=!stillcam;
                                     break;
+                                default:
+                                    PlaySound(s_cancel);
                             }
                         }
                     }
