@@ -3204,6 +3204,8 @@ void stepchar(){
                         case OTYPE_TELE:
                             if(!plrdebounce){
                                 plrdebounce=true;
+                                canmove=false;
+                                plrsliding=false;
                                 tomap = findvar(v->uid,V_TELE_TOMAP);
                                 tomapx = findvar(v->uid,V_TELE_TOX);
                                 tomapy = findvar(v->uid,V_TELE_TOY);
@@ -3251,6 +3253,7 @@ void stepchar(){
                                 plrlongjump=false;
                                 plrpound=false;
                                 plrattack=false;
+                                plrflying=false;
                                 plrpoint=Vector3Normalize(
                                 Vector3Multiply(
                                 matlook(MatrixLookAt(v2(plrpos),v2(plrpolepos),(Vector3){0,1,0})),
@@ -4140,6 +4143,8 @@ static void UpdateDrawFrame(void){
                             StopMusicStream(bgm);
                             loadstate=1;
                             usechar=false;
+                            plrhasfly=false;
+                            plrflying=false;
                         }else if(loadstate==1){
                             if(t>1){
                                 loading=true;
@@ -4150,6 +4155,7 @@ static void UpdateDrawFrame(void){
                             tomapid(tomap);
                             transition(false);
                             plrdebounce=false;
+                            canmove=true;
                         }
                         break;
                     case 1:
