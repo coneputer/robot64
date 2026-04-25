@@ -4308,7 +4308,7 @@ static void UpdateDrawFrame(void){
         
         //except for debugging stuff because that oesnt really matter
         // DEBUGGGING TEXTs
-        r64text(TextFormat("robot 64 raylib v13 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
+        r64text(TextFormat("robot 64 raylib v14 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
         r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,100,20,0,0,WHITE);
         //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
         //for (i=0;i<activeSounds.count;i++){
