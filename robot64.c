@@ -101,6 +101,8 @@ typedef struct {
 #define OTYPE_ICDR 8
     #define V_ICDR_TERRAI 0
     #define V_ICDR_REQ 1
+#define OTYPE_POWR 9
+    #define V_POWR_ID 0
 typedef struct {
     Vector3 pos;
     Vector3 size;
@@ -147,7 +149,8 @@ const bool rg3[]={ //if can be activated by player alternate hitbox (usually spi
     false,//OTYPE_ICED
     true, //OTYPE_WATR
     false,//OTYPE_POLE
-    false //OTYPE_ICDR
+    false,//OTYPE_ICDR
+    false //OTYPE_POWR
 };
 const bool gr3[]={ //if can be activated by beebo standing on it
     false,//OTYPE_NONE
@@ -158,7 +161,8 @@ const bool gr3[]={ //if can be activated by beebo standing on it
     false,//OTYPE_ICED
     false,//OTYPE_WATR
     false,//OTYPE_POLE
-    false //OTYPE_ICDR
+    false,//OTYPE_ICDR
+    false //OTYPE_POWR
 };
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -217,6 +221,9 @@ const unsigned char sfx_icedoor[]={
 };
 const unsigned char sfx_cancel[]={
 #embed "sfx/cancel.ogg"
+};
+const unsigned char sfx_powerup[]={
+#embed "sfx/powerup.ogg"
 };
 
 const unsigned char sfx_sa1[]={ //step A 1
@@ -727,6 +734,7 @@ Sound s_gotice;
 Sound s_pole;
 Sound s_icedoor;
 Sound s_cancel;
+Sound s_powerup;
 
 Sound stepsA[5];
 //models
@@ -1354,6 +1362,10 @@ void map_hub(){
     entlist.items[i]=tme;i++;
     tme = crEnt(OTYPE_POLE,317.473,51.376,163.876,  2,20.233,2);
     entlist.items[i]=tme;i++;
+    tme = crEnt(OTYPE_POWR,58.371,21,170.622, 3.2,3.2,3.2);
+    entlist.items[i]=tme;i++;
+    addvar(tme.uid,V_POWR_ID,0);
+    
     entlist.items[i]=spawnIcedoor(-32.7,25.05,195.39, 1,12.8,20 ,1);i++;
     entlist.items[i]=spawnIcedoor(79.5,25.15,195.39, 1,13,20 ,8);i++;
     entlist.items[i]=spawnIcedoor(123.3,25.15,195.39, 1,13,20 ,16);i++;
@@ -3275,6 +3287,18 @@ void stepchar(){
                                 v->disabled=true;
                             }
                             break;
+                        case OTYPE_POWR:
+                            if(!plrdebounce){
+                                particle(0,8,true,vistorsopos,1);
+                                plrdebounce=true;
+                                plrdebouncetimer=60;
+                                plrhasfly=!plrhasfly;
+                                plrflying=false;
+                                if(plrhasfly){
+                                    PlaySoundAtBeebo(s_powerup,1);
+                                }
+                            }
+                            break;
                     }
                 }
             }
@@ -3590,6 +3614,9 @@ int main(){
     UnloadWave(wav);
     wav = LoadWaveFromMemory(".ogg",sfx_cancel,sizeof(sfx_cancel));
     s_cancel = LoadSoundFromWave(wav);
+    UnloadWave(wav);
+    wav = LoadWaveFromMemory(".ogg",sfx_powerup,sizeof(sfx_powerup));
+    s_powerup = LoadSoundFromWave(wav);
     UnloadWave(wav);
     
     wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
@@ -4029,6 +4056,9 @@ static void UpdateDrawFrame(void){
                             case OTYPE_POLE:
                                 Vector3 thing=(Vector3){0,v->size.y/2,0};
                                 DrawCylinderEx(Vector3Subtract(v->pos,thing),Vector3Add(v->pos,thing),2,2,8,GREEN);
+                                break;
+                            case OTYPE_POWR:
+                                DrawCubeV(v->pos,v->size,GREEN);
                                 break;
                         }
                     }
