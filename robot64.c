@@ -1910,6 +1910,7 @@ Vector3 vistorsopos = {0};
 Matrix vistorsorot = {0};
 Vector3 visjetpos = {0};
 Vector3 shadowpos = {0,-10000,0};
+Vector3 shadownorm = {0,1,0};
 bool paused = false;
 uint8_t pausemenu = 0; //id of the menu the pausescreen currently shows
 int8_t pauseselt = 0; //id of the button thats selected
@@ -2161,6 +2162,7 @@ void drawbeeb(){
         
         RayCollision shadray = {0};
         shadowpos = (Vector3){0,-10000,0};
+        shadownorm = (Vector3){0,1,0};
         float shadowdist = 30;
         for(int i=0;i<gm3d.count;i++){
             if(!gm3d.items[i].nocol){
@@ -2168,6 +2170,7 @@ void drawbeeb(){
                 if((shadray.hit&&shadray.distance<=30)&&(shadray.distance<shadowdist)){
                     shadowdist=shadray.distance;
                     shadowpos = shadray.point;
+                    shadownorm=shadray.normal;
                 }
             }
         }
@@ -2937,7 +2940,7 @@ void stepchar(){
                     plrwallrun=false;
                     plrjumping=12;
                     walltimer=6;
-                }else if(!plrdjump){ //double jump
+                }else if(!plrdjump&&!plrsliding){ //double jump
                     particle(0,1,true,mpspar,1);
                     botand-=2;
                     plrjumping=18;
@@ -3044,6 +3047,7 @@ void stepchar(){
                     plrsliding=true;
                     plrrolling=false;
                     if(plrhasfly&&!plrdjump){
+                        plrdjump=true;
                         plrflying = true;
                         plrflypitch=.5;
                         plrflyspeed=2;
@@ -3052,7 +3056,6 @@ void stepchar(){
                     }else{
                         plrvel = Vector3Add(Vector3Scale(plrpoint,40),(Vector3){0,20}); //idk how to replicate cuz sometimes its 30 sometimes its not (in the og game)
                     }
-                    plrdjump=true;
                     plrg=false;
                     PlaySoundAtBeebo(s_dive,1);
                     plranchored=false;
@@ -3955,7 +3958,9 @@ static void UpdateDrawFrame(void){
                 //DrawSphere(plrpos,1.5f,WHITE);
                 //draw beebo
                 drawbeeb();
-                DrawCube(shadowpos,1,.5,1,BLACK);                   //UNFINISHED
+                //DrawCube(shadowpos,1,.5,1,BLACK);                   //UNFINISHED
+                float s = ((shadowpos.y - vistorsopos.y)/10 + 3)*.35;
+                DrawCylinderEx(shadowpos,Vector3Add(shadowpos,Vector3Scale(shadownorm,.1)),s,s,8,BLACK);
                 for(i=0;i<PAR_MAX;i++){
                     Par *v = &particles.items[i];
                     if(v->scale>0){
