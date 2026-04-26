@@ -1916,7 +1916,8 @@ double gtick = 0;
 double g06next = 0;
 uint8_t faceid = 0;
 
-#define dt 1.0f/60.0f
+//#define dt 1.0f/60.0f
+float dt = 0;
 Matrix vistorso = {0};
 Vector3 vistorsopos = {0};
 Matrix vistorsorot = {0};
@@ -3784,6 +3785,7 @@ int8_t blink = 10;
 int8_t candoffset = 0;
 Rectangle pauserec = {0};
 static void dotheframecrap(){
+    dt = GetFrameTime();
     sw = GetScreenWidth();
     sh = GetScreenHeight();
 #if defined(PLATFORM_WEB)
