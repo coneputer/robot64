@@ -4274,19 +4274,22 @@ static void UpdateDrawFrame(void){
                     r64text("Sensitivity:",sw2,sh*0.9,sh*0.04f,.5f,.5f,WHITE);
                     DrawRectangleV((Vector2){sw*.4,sh*.95},(Vector2){sw*.2,sh*.02},WHITE);
                     DrawRectangleV((Vector2){sw*.395+sensitivity*sw*.2,sh*.94},(Vector2){sw*.01,sh*.04},GREEN);
-                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        if(ishovering){
-                            switch(pauseselt){
-                                case 0:
-                                    ResumeMusicStream(s_slide);
-                                    paused = !paused;
-                                    break;
-                                case 4:
-                                    stillcam=!stillcam;
-                                    break;
-                                default:
-                                    PlaySound(s_cancel);
-                            }
+                    if((IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&ishovering)||IsKeyPressed(KEY_SPACE)
+#if defined(PLATFORM_WEB)
+#else
+                        ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+#endif
+                    ){
+                        switch(pauseselt){
+                            case 0:
+                                ResumeMusicStream(s_slide);
+                                paused = !paused;
+                                break;
+                            case 4:
+                                stillcam=!stillcam;
+                                break;
+                            default:
+                                PlaySound(s_cancel);
                         }
                     }
                     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)&&m.y>sh*.93&&m.y<sh*.99){
