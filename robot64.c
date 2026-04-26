@@ -2508,7 +2508,7 @@ void stepchar(){
         }else if((!plrg)&&oplrg){
             plrswip=false;
             if(plrsliding&&!plrrolling){
-                plrdjump=true;
+                //plrdjump=true;
                 if(plrjumping==0&&oskibidi.normal.y<=.995){
                     plrvel=v2(plrvel);
                     plrvel=Vector3Add(plrvel,(Vector3){0,fmax(0,-Vector3DotProduct(plrpoint,Vector3Normalize(v2(oskibidi.normal)))*(Vector3Length(plrvel)/1.5)),0});
@@ -3443,7 +3443,12 @@ void stepchar(){
                 camzoomlerp+=fmin(dt*40,camdist-camzoomlerp);
             }
         }
-        UpdateCameraPro(&camera,(Vector3){0},(Vector3){0},camzoomlerp);
+        UpdateCameraPro(&camera,(Vector3){0},(Vector3){0},fabsf(camzoomlerp));
+        if(camzoomlerp<0){
+            camera.position=Vector3Subtract(camera.target,Vector3Subtract(camera.position,camera.target));
+            Vector3 camlook = Vector3Multiply(matlook(GetCameraMatrix(camera)),(Vector3){1,1,-1});
+            camera.target=Vector3Add(camera.position,camlook);
+        }
     }
     camera.fovy += ((plrflying?(70+plrflyspeed*3):70)-camera.fovy)*dt;
     if(IsKeyPressed(KEY_H)){
