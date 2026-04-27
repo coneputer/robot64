@@ -3785,7 +3785,7 @@ int8_t blink = 10;
 int8_t candoffset = 0;
 Rectangle pauserec = {0};
 static void dotheframecrap(){
-    dt = GetFrameTime();
+    dt = (dt==-1)?(1.0f/60):GetFrameTime();
     sw = GetScreenWidth();
     sh = GetScreenHeight();
 #if defined(PLATFORM_WEB)
@@ -4198,6 +4198,7 @@ static void UpdateDrawFrame(void){
                             transition(false);
                             plrdebounce=false;
                             canmove=true;
+                            dt=-1;
                         }
                         break;
                     case 1:
