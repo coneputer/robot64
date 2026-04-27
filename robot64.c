@@ -2931,18 +2931,17 @@ void stepchar(){
                     plrledgegrab=false;
                     ledgetimer2=12;
                     walltimer=6;
+                    plrdebounce=true;
                     if(Vector3DotProduct(plrdir,plrpoint)<-.5){
                         plrvel=Vector3Add(Vector3Add(v2(plrvel),(Vector3){0,20}),Vector3Scale(plrpoint,-50));
                         botand=pi*-2;
                         plrjumping=12;
-                        plrdebounce=true;
                         plrdebouncetimer=12;
                     }else{
                         plrvel = Vector3Add((Vector3){0,30,0},Vector3Scale(pointrightvector,10));
                         rotand++;
                         ledgetimer=24;
                         plrjumping=24;
-                        plrdebounce=true;
                         plrdebouncetimer=24;
                     }
                 }else if(plrwallrun){
