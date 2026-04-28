@@ -430,6 +430,9 @@ const unsigned char tex_sky_turtle[]={
 const unsigned char tex_icedoor[]={
 #embed "textures/lock2.png"
 };
+const unsigned char img_slider[]={
+#embed "textures/arrowthing.png"
+};
 #define NUM_TEX 21
 typedef struct {
     Texture2D items[NUM_TEX];
@@ -714,6 +717,7 @@ Texture2D t_frame;
 Texture2D t_3dUI;
 Texture2D t_stick2;
 Texture2D t_icedoor;
+Texture2D t_slider;
 //sounds
 float soundRolloffGlobal = 0.05f; //rolloff for sound attenuation, higher is quieter
 
@@ -3443,12 +3447,12 @@ void stepchar(){
                 camzoomlerp+=fmin(dt*40,camdist-camzoomlerp);
             }
         }
-        UpdateCameraPro(&camera,(Vector3){0},(Vector3){0},fabsf(camzoomlerp));
-        if(camzoomlerp<0){
-            camera.position=Vector3Subtract(camera.target,Vector3Subtract(camera.position,camera.target));
-            Vector3 camlook = Vector3Multiply(matlook(GetCameraMatrix(camera)),(Vector3){1,1,-1});
-            camera.target=Vector3Add(camera.position,camlook);
-        }
+        UpdateCameraPro(&camera,(Vector3){0},(Vector3){0},camzoomlerp);//fabsf(camzoomlerp)
+        //if(camzoomlerp<0){
+        //    camera.position=Vector3Subtract(camera.target,Vector3Subtract(camera.position,camera.target));
+        //    Vector3 camlook = Vector3Multiply(matlook(GetCameraMatrix(camera)),(Vector3){1,1,-1});
+        //    camera.target=Vector3Add(camera.position,camlook);
+        //}
     }
     camera.fovy += ((plrflying?(70+plrflyspeed*3):70)-camera.fovy)*dt;
     if(IsKeyPressed(KEY_H)){
@@ -3548,6 +3552,9 @@ int main(){
     img = LoadImageFromMemory(".png",tex_icedoor,sizeof(tex_icedoor));
     t_icedoor = LoadTextureFromImage(img);
     SetTextureWrap(t_icedoor,TEXTURE_WRAP_REPEAT);SetTextureFilter(t_icedoor,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
+    img = LoadImageFromMemory(".png",img_slider,sizeof(img_slider));
+    t_slider = LoadTextureFromImage(img);SetTextureFilter(t_slider,TEXTURE_FILTER_BILINEAR);
     UnloadImage(img);
     
     loadskin(plrskin);
@@ -4274,8 +4281,10 @@ static void UpdateDrawFrame(void){
                     
                     
                     r64text("Sensitivity:",sw2,sh*0.9,sh*0.04f,.5f,.5f,WHITE);
-                    DrawRectangleV((Vector2){sw*.4,sh*.95},(Vector2){sw*.2,sh*.02},WHITE);
-                    DrawRectangleV((Vector2){sw*.395+sensitivity*sw*.2,sh*.94},(Vector2){sw*.01,sh*.04},GREEN);
+                    DrawRectangleV((Vector2){sw*.4,sh*.95},(Vector2){sw*.2,sh*.02},GREEN);//WHITE
+                    float slidersize = sh*.08;
+                    DrawTexturePro(t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+sensitivity*sw*.2-slidersize/2,sh*.96,slidersize,slidersize},(Vector2){0},0,WHITE);
+                    //DrawRectangleV((Vector2){sw*.395+sensitivity*sw*.2,sh*.94},(Vector2){sw*.01,sh*.04},GREEN);
                     if((IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&ishovering)||IsKeyPressed(KEY_SPACE)
 #if defined(PLATFORM_WEB)
 #else
