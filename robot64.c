@@ -3827,7 +3827,7 @@ static void dotheframecrap(){
     Vector2 m = GetMousePosition();
     if((IsKeyPressed(KEY_ESCAPE)||IsKeyPressed(KEY_P)||IsKeyPressed(KEY_GRAVE)
     ||(!paused&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&CheckCollisionPointRec((Vector2){m.x,m.y},pauserec))    
-    )&&usechar){
+    )&&usechar&&!plrgotice){
         if(paused){
             ResumeMusicStream(s_slide);
             pausemenu=0;
@@ -4303,6 +4303,7 @@ static void UpdateDrawFrame(void){
                             case 4:
                                 //stillcam=!stillcam;
                                 pausemenu=1;
+                                pauseselt=0;
                                 break;
                             default:
                                 PlaySound(s_cancel);
