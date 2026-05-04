@@ -4354,11 +4354,19 @@ static void UpdateDrawFrame(void){
                     }
                     break;
             }
-            float hovery = sframey+(sframesize*(.24+pauseselt/10.0))+sframesize*.045;
+            //float hovery = sframey+(sframesize*(.24+pauseselt/10.0))+sframesize*.045;
+            //spinyy += (hovery-spinyy)*(dt*20);
+            //float hoverx = sframex+sframesize*.1+spinysize*.5;
+            //spinyx += (hoverx-spinyx)*(dt*20);
+            //DrawTextureEx(spinny,Vector2Add((Vector2){spinyx,spinyy},soff),srot,0.0078125f*spinysize,WHITE);
+            float hovery = .24+pauseselt/10.0;
             spinyy += (hovery-spinyy)*(dt*20);
-            float hoverx = sframex+sframesize*.1+spinysize*.5;
+            float hoverx = .1;
             spinyx += (hoverx-spinyx)*(dt*20);
-            DrawTextureEx(spinny,Vector2Add((Vector2){spinyx,spinyy},soff),srot,0.0078125f*spinysize,WHITE);
+            DrawTextureEx(spinny,Vector2Add((Vector2){
+                sframex+sframesize*spinyx+spinysize*.5,
+                sframey+(sframesize*spinyy)+sframesize*.045
+            },soff),srot,0.0078125f*spinysize,WHITE);
         }
         if(plrgotice){
             int ish = sh-inset;
