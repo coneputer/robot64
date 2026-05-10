@@ -436,6 +436,9 @@ const unsigned char img_slider[]={
 const unsigned char img_3dUIB[]={
 #embed "textures/3dUIB.png"
 };
+const unsigned char tex_givebox[]={
+#embed "textures/givebox.png"
+};
 #define NUM_TEX 21
 typedef struct {
     Texture2D items[NUM_TEX];
@@ -603,6 +606,9 @@ const unsigned char beeb_booster[]={ //model 36 (not terrain)
 const unsigned char beeb_pack[]={ //model 37 (not terrain)
 #embed "models/beebo/pack.glb"
 };
+const unsigned char misc_givebox[]={ //model 38 (not terrain)
+#embed "models/givebox.glb"
+};
 const unsigned char *glblist[] = {hub_meshgrass,
                                 hub_meshcliff,
                                 title_meshlogo,
@@ -640,7 +646,8 @@ const unsigned char *glblist[] = {hub_meshgrass,
                                 title_meshbeam,
                                 beeb_jetpack,
                                 beeb_booster,
-                                beeb_pack
+                                beeb_pack,
+                                misc_givebox
                                 };
 const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(hub_meshcliff),
@@ -679,7 +686,8 @@ const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(title_meshbeam),
                     sizeof(beeb_jetpack),
                     sizeof(beeb_booster),
-                    sizeof(beeb_pack)
+                    sizeof(beeb_pack),
+                    sizeof(misc_givebox)
                     };
 
 const unsigned char *filepointer;
@@ -722,6 +730,7 @@ Texture2D t_stick2;
 Texture2D t_icedoor;
 Texture2D t_slider;
 Texture2D t_3dUIB;
+Texture2D t_givebox;
 //sounds
 float soundRolloffGlobal = 0.05f; //rolloff for sound attenuation, higher is quieter
 
@@ -765,6 +774,7 @@ Model curhat;
 Model ml_candy;
 Model ml_cloud;
 Model ml_icedcream;
+Model ml_givebox;
 //textures
 Texture2D curskin;
 Texture2D bt_faces[5];
@@ -3563,6 +3573,9 @@ int main(){
     img = LoadImageFromMemory(".png",img_slider,sizeof(img_slider));
     t_slider = LoadTextureFromImage(img);SetTextureFilter(t_slider,TEXTURE_FILTER_BILINEAR);
     UnloadImage(img);
+    img = LoadImageFromMemory(".png",tex_givebox,sizeof(tex_givebox));
+    t_givebox = LoadTextureFromImage(img);SetTextureFilter(t_givebox,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
     
     loadskin(plrskin);
     img = LoadImageFromMemory(".png",tex_jetpack,sizeof(tex_jetpack));
@@ -3734,6 +3747,11 @@ int main(){
     SetLoadFileDataCallback(NULL);
     b_pack.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_pack.materials[1].shader = shader;
+    prepmodel(glblist[38],glbsize[38]);
+    ml_givebox = LoadModel("tuffness.glb");
+    SetLoadFileDataCallback(NULL);
+    ml_givebox.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_givebox;
+    ml_givebox.materials[1].shader = shader;
     
     
     prepmodel(glblist[33],glbsize[33]);
@@ -4079,7 +4097,21 @@ static void UpdateDrawFrame(void){
                                 DrawCylinderEx(Vector3Subtract(v->pos,thing),Vector3Add(v->pos,thing),2,2,8,GREEN);
                                 break;
                             case OTYPE_POWR:
-                                DrawCubeV(v->pos,v->size,GREEN);
+                                DrawMesh(ml_givebox.meshes[0],ml_givebox.materials[1],
+                                MatrixMultiply(
+                                    MatrixScale(.016,.016,.016),
+                                    MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
+                                ));
+                                if(!plrhasfly){
+                                    DrawMesh(b_jetpack.meshes[0],b_jetpack.materials[1],
+                                    MatrixMultiply(
+                                        MatrixScale(.01334372682,.01334658526,.01334),
+                                        MatrixMultiply(
+                                            candycf,
+                                            MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
+                                        )
+                                    ));
+                                }
                                 break;
                         }
                     }
@@ -4377,7 +4409,10 @@ static void UpdateDrawFrame(void){
         }
         
         
-        //DrawRectangleV((Vector2){0},(Vector2){sw,inset},(Color){31,31,31,127}); //roblox topbar replica
+#if defined(SHOWROBLOX)
+        DrawRectangleV((Vector2){0},(Vector2){sw,inset},(Color){31,31,31,127}); //roblox topbar replica
+#endif
+        //DrawRectangleV((Vector2){sw/4.0f,inset},(Vector2){sw/2.0f,80},(Color){253,68,72,255}); //roblox disconnect error replica
         //DONT PUT ANYTHING AFTER THIS YOU LITTLE DIDDYBLUD, this is the cursor draw
         if(!mouselock||paused){
             DrawTextureEx(curstx,(Vector2){mx-1,my-1},0,1,WHITE);
