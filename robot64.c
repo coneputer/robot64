@@ -618,6 +618,9 @@ const unsigned char misc_givebox[]={ //model 38 (not terrain)
 const unsigned char beeb_board[]={ //model 39 (not terrain)
 #embed "models/beebo/board.glb"
 };
+const unsigned char beeb_wheel[]={ //model 40 (not terrain)
+#embed "models/beebo/w.glb"
+};
 const unsigned char *glblist[] = {hub_meshgrass,
                                 hub_meshcliff,
                                 title_meshlogo,
@@ -657,7 +660,8 @@ const unsigned char *glblist[] = {hub_meshgrass,
                                 beeb_booster,
                                 beeb_pack,
                                 misc_givebox,
-                                beeb_board
+                                beeb_board,
+                                beeb_wheel
                                 };
 const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(hub_meshcliff),
@@ -698,7 +702,8 @@ const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(beeb_booster),
                     sizeof(beeb_pack),
                     sizeof(misc_givebox),
-                    sizeof(beeb_board)
+                    sizeof(beeb_board),
+                    sizeof(beeb_wheel)
                     };
 
 const unsigned char *filepointer;
@@ -777,6 +782,7 @@ Model b_jetpack;
 Model b_booster;
 Model b_pack;
 Model b_board;
+Model b_wheel;
 
 Model p_break; //for breakables
 Model p_sun;
@@ -1406,6 +1412,9 @@ void map_hub(){
     tme = crEnt(OTYPE_POWR,58.371,21,170.622, 3.2,3.2,3.2);
     entlist.items[i]=tme;i++;
     addvar(tme.uid,V_POWR_ID,0);
+    tme = crEnt(OTYPE_POWR,62.591,21,166.401, 3.2,3.2,3.2);
+    entlist.items[i]=tme;i++;
+    addvar(tme.uid,V_POWR_ID,1);
     
     entlist.items[i]=spawnIcedoor(-32.7,25.05,195.39, 1,12.8,20 ,1);i++;
     entlist.items[i]=spawnIcedoor(79.5,25.15,195.39, 1,13,20 ,8);i++;
@@ -2276,6 +2285,19 @@ void drawbeeb(){
                 Matrix finalboardpos = 
                 MatrixMultiply(MatrixRotateXYZ((Vector3){boarderp.x*skaterp,boarderp.y*skaterp,boarderp.z*skaterp}),materp(boardpos,boardpos2,1-skaterp));
                 DrawMesh(b_board.meshes[0],b_board.materials[1],MatrixMultiply(MatrixScale(.01528,.01526746767,.01528556321),finalboardpos));
+                
+                Matrix boardrot = finalboardpos;
+                boardrot.m12 = 0.0f;
+                boardrot.m13 = 0.0f;
+                boardrot.m14 = 0.0f;
+                Vector3 boardonlypos = Vector3Transform((Vector3){0},finalboardpos);
+                
+                Matrix w1=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZ((Vector3){-gtick*10*skaterp,0,0}),boardrot),(Vector3){0,-.4,-1.2},boardrot),
+                MatrixTranslate(boardonlypos.x,boardonlypos.y,boardonlypos.z));
+                Matrix w2=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZ((Vector3){-gtick*10*skaterp,0,0}),boardrot),(Vector3){0,-.4,1.2},boardrot),
+                MatrixTranslate(boardonlypos.x,boardonlypos.y,boardonlypos.z));
+                DrawMesh(b_wheel.meshes[0],b_wheel.materials[1],MatrixMultiply(MatrixScale(.01528253601,.01529452556,.01528092887),w1));
+                DrawMesh(b_wheel.meshes[0],b_wheel.materials[1],MatrixMultiply(MatrixScale(.01528253601,.01529452556,.01528092887),w2));
             }
         }
         visjetpos = Vector3Transform((Vector3){0},jetpos);
@@ -3378,10 +3400,24 @@ void stepchar(){
                                 particle(0,8,true,vistorsopos,1);
                                 plrdebounce=true;
                                 plrdebouncetimer=60;
-                                plrhasfly=!plrhasfly;
                                 plrflying=false;
-                                if(plrhasfly){
-                                    PlaySoundAtBeebo(s_powerup,1);
+                                plrskate=false;
+                                uint8_t idofit = round(findvar(v->uid,V_POWR_ID));
+                                switch(idofit){
+                                    case 0:
+                                        plrhasfly=!plrhasfly;
+                                        if(plrhasfly){
+                                            PlaySoundAtBeebo(s_powerup,1);
+                                        }
+                                        plrhasboard=false;
+                                        break;
+                                    case 1:
+                                        plrhasboard=!plrhasboard;
+                                        if(plrhasboard){
+                                            PlaySoundAtBeebo(s_powerup,1);
+                                        }
+                                        plrhasfly=false;
+                                        break;
                                 }
                             }
                             break;
@@ -3838,6 +3874,11 @@ int main(){
     SetLoadFileDataCallback(NULL);
     b_board.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_board;
     b_board.materials[1].shader = shader;
+    prepmodel(glblist[40],glbsize[40]);
+    b_wheel = LoadModel("tuffness.glb");
+    SetLoadFileDataCallback(NULL);
+    b_wheel.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_board;
+    b_wheel.materials[1].shader = shader;
     
     
     prepmodel(glblist[33],glbsize[33]);
@@ -4192,15 +4233,32 @@ static void UpdateDrawFrame(void){
                                     MatrixScale(.016,.016,.016),
                                     MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
                                 ));
-                                if(!plrhasfly){
-                                    DrawMesh(b_jetpack.meshes[0],b_jetpack.materials[1],
-                                    MatrixMultiply(
-                                        MatrixScale(.01334372682,.01334658526,.01334),
-                                        MatrixMultiply(
-                                            candycf,
-                                            MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
-                                        )
-                                    ));
+                                uint8_t idofit = round(findvar(v->uid,V_POWR_ID));
+                                switch(idofit){
+                                    case 0:
+                                        if(!plrhasfly){
+                                            DrawMesh(b_jetpack.meshes[0],b_jetpack.materials[1],
+                                            MatrixMultiply(
+                                                MatrixScale(.01334372682,.01334658526,.01334),
+                                                MatrixMultiply(
+                                                    candycf,
+                                                    MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
+                                                )
+                                            ));
+                                        }
+                                        break;
+                                    case 1:
+                                        if(!plrhasboard){
+                                            DrawMesh(b_board.meshes[0],b_board.materials[1],
+                                            MatrixMultiply(
+                                                MatrixScale(.00725,.007231958368,.007250533941),
+                                                MatrixMultiply(
+                                                    candycf,
+                                                    MatrixTranslate(v->pos.x,v->pos.y,v->pos.z)
+                                                )
+                                            ));
+                                        }
+                                        break;
                                 }
                                 break;
                         }
