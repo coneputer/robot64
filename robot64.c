@@ -1690,6 +1690,17 @@ bool plrhasfly = false;
 bool plrflying = false;
 bool plrhasboard = false;
 bool plrskate = false;
+#define SK_IRONMAN 1
+#define SK_KICKFLIP 2
+#define SK_OLLIE 3
+#define SK_WALLJUMP 4
+#define SK_WALLRIDE 5
+uint8_t skatestat1 = 0; //current text (0 is none)
+uint32_t skatestat2 = 0; //left multiply
+uint32_t skatestat3 = 0; //right multiply
+bool skatestat4 = false; //continuous
+uint32_t skatestat5 = 0; //points
+bool skatestat6 = false; //gap (not used yet)
 float plrflypitch = 0;
 float plrflyspeed = 0;
 Vector3 plrswippoint = (Vector3){0};
@@ -2642,6 +2653,15 @@ void stepchar(){
             swiptimer=18;
         }
         
+        if(plrg&&plrjumping==0&&plrtimeland==0){
+            skatestat5+=skatestat2*skatestat3;
+            skatestat1=0;
+            skatestat2=0;
+            skatestat3=0;
+            skatestat4=false;
+            skatestat6=false;
+        }
+        
         Vector3 pointrightvector = Vector3Normalize((Vector3){-plrpoint.z,0,plrpoint.x});
         bool plroldwall = plrwallrun;
         plrwallrun=false;
@@ -2666,6 +2686,10 @@ void stepchar(){
                         (Vector3){0,-Vector3DotProduct(plrwallnorm,plrpoint),0});
                         plrvel = Vector3Add(v2(plrvel),(Vector3){0,(10+(Vector3Normalize(tforce).y*30)),0});
                     }
+                    skatestat1=SK_WALLRIDE;
+                    skatestat2+=100;
+                    skatestat3++;
+                    skatestat4=true;
                 }
                 plrlongjump=false;
                 plrpound=false;
@@ -3009,7 +3033,14 @@ void stepchar(){
                         }
                     }else{ //normal jump
                         plrg=false;
-                        plrvel=Vector3Add(v2(plrvel),(Vector3){0,40+(plrskate?fmax(0,botand*40):0)});
+                        if(plrskate){
+                            skatestat1=SK_OLLIE;
+                            skatestat2+=5;
+                            skatestat4=false;
+                            plrvel=Vector3Add(v2(plrvel),(Vector3){0,40+fmax(0,botand*40),0});
+                        }else{
+                            plrvel=Vector3Add(v2(plrvel),(Vector3){0,40,0});
+                        }
                         PlaySoundAtBeebo(s_jump,1);
                         fallvr*=-1;
                     }
@@ -3041,6 +3072,12 @@ void stepchar(){
                         plrdebouncetimer=24;
                     }
                 }else if(plrwallrun){
+                    if(plrskate){
+                        skatestat1=SK_WALLJUMP;
+                        skatestat2+=100;
+                        skatestat3++;
+                        skatestat4=false;
+                    }
                     PlaySoundAtBeebo(s_jump2,1);
                     plrvel=Vector3Add(Vector3Add(v2(plrvel),(Vector3){0,30}),Vector3Scale(plrwallnorm,30));
                     plrpoint=Vector3Normalize(v2(Vector3Add(plrpoint,Vector3Scale(plrwallnorm,-2*Vector3DotProduct(plrpoint,plrwallnorm)))));
@@ -3107,15 +3144,7 @@ void stepchar(){
 #endif
             )&&!plrattack&&!plrpound&&!plrpole){
                 plrdancing=false;
-                if(plrhasboard&&!plrcrouch&&!plrpole&&!plrswimming&&!plrpound){
-                    if(!plrskate){
-                        plrskate=true;
-                        plrlongjump=false;
-                        potand=pi*2;
-                    }else if(!plrg&&boarderp.z>-.2){
-                        boarderp = Vector3Add(boarderp,(Vector3){0,0,pi*-2});
-                    }
-                }else if(plrsliding){
+                if(plrsliding){
                     if(plrg){ //slide jump
                         plrdjump=true;
                         plrslidejumptimer=18;
@@ -3151,6 +3180,12 @@ void stepchar(){
                         plrdebouncetimer=24;
                     }
                 }else if(plrwallrun){
+                    if(plrskate){
+                        skatestat1=SK_WALLJUMP;
+                        skatestat2+=100;
+                        skatestat3++;
+                        skatestat4=false;
+                    }
                     PlaySoundAtBeebo(s_jump2,1);
                     plrvel=Vector3Add(Vector3Add(v2(plrvel),(Vector3){0,30}),Vector3Scale(plrwallnorm,30));
                     plrpoint=Vector3Normalize(v2(Vector3Add(plrpoint,Vector3Scale(plrwallnorm,-2*Vector3DotProduct(plrpoint,plrwallnorm)))));
@@ -3158,6 +3193,18 @@ void stepchar(){
                     plrwallrun=false;
                     plrjumping=12;
                     walltimer=6;
+                }else if(plrhasboard&&!plrcrouch&&!plrpole&&!plrswimming&&!plrpound){
+                    if(!plrskate){
+                        plrskate=true;
+                        plrlongjump=false;
+                        potand=pi*2;
+                    }else if(!plrg&&boarderp.z>-.2){
+                        boarderp = Vector3Add(boarderp,(Vector3){0,0,pi*-2});
+                        skatestat1=SK_KICKFLIP;
+                        skatestat2+=100;
+                        skatestat3++;
+                        skatestat4=false;
+                    }
                 }else{ //dive
                     plrdjumptimer=0;
                     plrjumping=18;
@@ -3212,6 +3259,12 @@ void stepchar(){
                     plrvel=Vector3Scale(plrvel,.5);
                 }else{
                     plrvel=Vector3Add(Vector3Scale(v2(plrvel),.5f),(Vector3){0,20});
+                    if(plrskate){
+                        skatestat1=SK_IRONMAN;
+                        skatestat2+=50;
+                        skatestat3++;
+                        skatestat4=true;
+                    }
                 }
             }
         }
@@ -4059,6 +4112,18 @@ static void dotheframecrap(){
             }else{
                 candoffset=0;
             }
+            if(plrskate&&!plrgotice){
+                if(skatestat4){
+                    skatestat2++;
+                }
+            }else{
+                skatestat1=0;
+                skatestat2=0;
+                skatestat3=0;
+                skatestat4=false;
+                skatestat5=0;
+                skatestat6=false;
+            }
         }
         songplay=
         (plrgotice||trsing2)?67
@@ -4348,6 +4413,29 @@ static void UpdateDrawFrame(void){
             DrawTextureEx(t_stick2,(Vector2){pbgx,pbgy},0,pbgsize/256,(Color){138,138,138,255});
             DrawTexturePro(t_3dUI,(Rectangle){384,256,128,128},(Rectangle){pbx,pby,pbsize,pbsize},(Vector2){0},0,WHITE);
             pauserec=(Rectangle){pbx,pby,pbsize,pbsize};
+            if(plrskate){
+                r64text(TextFormat("Score: %i",skatestat5),sw*.05,sh*.2,sh*.04,0,0,WHITE);
+                if(skatestat1!=0){
+                    switch(skatestat1){
+                        case SK_IRONMAN:
+                            r64text("The Iron Man",sw*.5,sh*.8,sh*.04,.5,0,WHITE);
+                            break;
+                        case SK_KICKFLIP:
+                            r64text("Kickflip",sw*.5,sh*.8,sh*.04,.5,0,WHITE);
+                            break;
+                        case SK_OLLIE:
+                            r64text("Ollie",sw*.5,sh*.8,sh*.04,.5,0,WHITE);
+                            break;
+                        case SK_WALLJUMP:
+                            r64text("Wall jump",sw*.5,sh*.8,sh*.04,.5,0,WHITE);
+                            break;
+                        case SK_WALLRIDE:
+                            r64text("Wallride",sw*.5,sh*.8,sh*.04,.5,0,WHITE);
+                            break;
+                    }
+                    r64text(TextFormat("%i x %i",skatestat2,skatestat3),sw*.5,sh*.84,sh*.06,.5,0,WHITE);
+                }
+            }
         }
         if(trsing){
             float t = GetTime()-trstart;
