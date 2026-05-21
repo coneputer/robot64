@@ -225,6 +225,9 @@ const unsigned char sfx_cancel[]={
 const unsigned char sfx_powerup[]={
 #embed "sfx/powerup.ogg"
 };
+const unsigned char sfx_damage[]={
+#embed "sfx/damage.ogg"
+};
 
 const unsigned char sfx_sa1[]={ //step A 1
 #embed "sfx/sa1.ogg"
@@ -445,6 +448,9 @@ const unsigned char tex_givebox[]={
 const unsigned char tex_board[]={
 #embed "textures/beebo/board.png"
 };
+const unsigned char tex_battery[]={
+#embed "textures/beebo/bt.png"
+};
 #define NUM_TEX 21
 typedef struct {
     Texture2D items[NUM_TEX];
@@ -621,6 +627,9 @@ const unsigned char beeb_board[]={ //model 39 (not terrain)
 const unsigned char beeb_wheel[]={ //model 40 (not terrain)
 #embed "models/beebo/w.glb"
 };
+const unsigned char beeb_battery[]={ //model 41 (not terrain)
+#embed "models/beebo/bt.glb"
+};
 const unsigned char *glblist[] = {hub_meshgrass,
                                 hub_meshcliff,
                                 title_meshlogo,
@@ -661,7 +670,8 @@ const unsigned char *glblist[] = {hub_meshgrass,
                                 beeb_pack,
                                 misc_givebox,
                                 beeb_board,
-                                beeb_wheel
+                                beeb_wheel,
+                                beeb_battery
                                 };
 const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(hub_meshcliff),
@@ -703,7 +713,8 @@ const int glbsize[] = {sizeof(hub_meshgrass),
                     sizeof(beeb_pack),
                     sizeof(misc_givebox),
                     sizeof(beeb_board),
-                    sizeof(beeb_wheel)
+                    sizeof(beeb_wheel),
+                    sizeof(beeb_battery)
                     };
 
 const unsigned char *filepointer;
@@ -768,6 +779,7 @@ Sound s_pole;
 Sound s_icedoor;
 Sound s_cancel;
 Sound s_powerup;
+Sound s_damage;
 
 Sound stepsA[5];
 //models
@@ -783,6 +795,7 @@ Model b_booster;
 Model b_pack;
 Model b_board;
 Model b_wheel;
+Model b_battery;
 
 Model p_break; //for breakables
 Model p_sun;
@@ -798,6 +811,7 @@ Texture2D curskin;
 Texture2D bt_faces[5];
 Texture2D t_jetpack;
 Texture2D t_board;
+Texture2D t_battery;
 
 //maphandling
 gm3dlist gm3d;
@@ -1709,6 +1723,7 @@ uint8_t plrdjumptimer = 0;
 uint8_t plrhurt = 0;
 uint8_t plrtimeland = 0;
 uint8_t plrskin = 1;
+uint8_t plrhealth = 4;
 float rotand=0;
 float botand=0;
 float potand=0;
@@ -2253,7 +2268,7 @@ void drawbeeb(){
     }
     
     //where we draw everything
-    if(camzoomlerp>.2||plrgotice){
+    if((camzoomlerp>.2&&(plrhurt==0||sin(gtick*40)>0))||plrgotice){
         DrawMesh(b_torso.meshes[0],b_torso.materials[1],MatrixMultiply(MatrixScale(0.9432819383,0.943246311,0.9435414885),torsopos));
         Matrix headposS = MatrixMultiply(MatrixScale(0.25f,0.25f,0.25f),headpos);
         DrawMesh(b_head.meshes[0],b_head.materials[1],headposS);
@@ -2285,9 +2300,28 @@ void drawbeeb(){
             MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
             DrawMesh(b_booster.meshes[0],b_booster.materials[1],MatrixMultiply(MatrixScale(0.01214169018*br,0.01214515657*br,0.01214*br),jetbpos));
         }else{
-            Matrix packpos=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZ((Vector3){1.44,pi,0}),torsorot),(Vector3){0,.12,.48},torsorot),
-            MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
-            DrawMesh(b_pack.meshes[0],b_pack.materials[1],MatrixMultiply(MatrixScale(.33,.8403361345,.3229527105),packpos));
+            if(plrhealth>=4){
+                Matrix packpos=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZ((Vector3){1.44,pi,0}),torsorot),(Vector3){0,.12,.48},torsorot),
+                MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+                DrawMesh(b_pack.meshes[0],b_pack.materials[1],MatrixMultiply(MatrixScale(.33,.8403361345,.3229527105),packpos));
+            }else{
+                Matrix rot = MatrixMultiply(MatrixRotateXYZ((Vector3){0,pi/2,-.1}),torsorot);
+                if(plrhealth>=3){ //bt3
+                    Matrix btpos=MatrixMultiply(matrel(rot,(Vector3){.13,-.09,.24},torsorot),
+                    MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+                    DrawMesh(b_battery.meshes[0],b_battery.materials[1],MatrixMultiply(MatrixScale(.006,.005805515239,.006),btpos));
+                }
+                if(plrhealth>=2){ //bt2
+                    Matrix btpos=MatrixMultiply(matrel(rot,(Vector3){-.13,-.09,.24},torsorot),
+                    MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+                    DrawMesh(b_battery.meshes[0],b_battery.materials[1],MatrixMultiply(MatrixScale(.006,.005805515239,.006),btpos));
+                }
+                if(plrhealth>=1){ //bt1
+                    Matrix btpos=MatrixMultiply(matrel(rot,(Vector3){-.13,.23,.19},torsorot),
+                    MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
+                    DrawMesh(b_battery.meshes[0],b_battery.materials[1],MatrixMultiply(MatrixScale(.006,.005805515239,.006),btpos));
+                }
+            }
             if(plrhasboard){
                 Matrix boardpos=MatrixMultiply(matrel(MatrixMultiply(MatrixRotateXYZ((Vector3){0,1.5,-rotand*(1-wallerp)*grn}),torsorot),(Vector3){0,-1.7,0},torsorot),
                 MatrixTranslate(torsoonlypos.x,torsoonlypos.y,torsoonlypos.z));
@@ -3144,7 +3178,19 @@ void stepchar(){
 #endif
             )&&!plrattack&&!plrpound&&!plrpole){
                 plrdancing=false;
-                if(plrsliding){
+                if(plrhasboard&&!plrcrouch&&!plrpole&&!plrswimming&&!plrpound){
+                    if(!plrskate){
+                        plrskate=true;
+                        plrlongjump=false;
+                        potand=pi*2;
+                    }else if(!plrg&&boarderp.z>-.2){
+                        boarderp = Vector3Add(boarderp,(Vector3){0,0,pi*-2});
+                        skatestat1=SK_KICKFLIP;
+                        skatestat2+=100;
+                        skatestat3++;
+                        skatestat4=false;
+                    }
+                }else if(plrsliding){
                     if(plrg){ //slide jump
                         plrdjump=true;
                         plrslidejumptimer=18;
@@ -3193,18 +3239,6 @@ void stepchar(){
                     plrwallrun=false;
                     plrjumping=12;
                     walltimer=6;
-                }else if(plrhasboard&&!plrcrouch&&!plrpole&&!plrswimming&&!plrpound){
-                    if(!plrskate){
-                        plrskate=true;
-                        plrlongjump=false;
-                        potand=pi*2;
-                    }else if(!plrg&&boarderp.z>-.2){
-                        boarderp = Vector3Add(boarderp,(Vector3){0,0,pi*-2});
-                        skatestat1=SK_KICKFLIP;
-                        skatestat2+=100;
-                        skatestat3++;
-                        skatestat4=false;
-                    }
                 }else{ //dive
                     plrdjumptimer=0;
                     plrjumping=18;
@@ -3333,6 +3367,7 @@ void stepchar(){
             icedtimer--;
             if(icedtimer==60){
                 icedcream++; //replace this later
+                plrhealth=4;
             }else if(icedtimer==0){
                 plrgotice=false;
                 plranchored=false;
@@ -3461,6 +3496,7 @@ void stepchar(){
                                         plrhasfly=!plrhasfly;
                                         if(plrhasfly){
                                             PlaySoundAtBeebo(s_powerup,1);
+                                            plrhealth=4;
                                         }
                                         plrhasboard=false;
                                         break;
@@ -3468,6 +3504,7 @@ void stepchar(){
                                         plrhasboard=!plrhasboard;
                                         if(plrhasboard){
                                             PlaySoundAtBeebo(s_powerup,1);
+                                            plrhealth=4;
                                         }
                                         plrhasfly=false;
                                         break;
@@ -3641,6 +3678,16 @@ void stepchar(){
         plrskate=false;
         particle(0,8,true,vistorsopos,1);
     }
+    if(IsKeyPressed(KEY_L)){
+        plrhurt=120;
+        plrhealth--;
+        PlaySoundAtBeebo(s_damage,1);
+        plrflying=false;
+        plrhasfly=false;
+        if(plrhealth>4){
+            plrhealth=4;
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -3751,6 +3798,9 @@ int main(){
     img = LoadImageFromMemory(".png",tex_board,sizeof(tex_board));
     t_board = LoadTextureFromImage(img);SetTextureFilter(t_board,TEXTURE_FILTER_BILINEAR);
     UnloadImage(img);
+    img = LoadImageFromMemory(".png",tex_battery,sizeof(tex_battery));
+    t_battery = LoadTextureFromImage(img);SetTextureFilter(t_battery,TEXTURE_FILTER_BILINEAR);
+    UnloadImage(img);
     
     img = LoadImageFromMemory(".png",tex_face1,sizeof(tex_face1));
     bt_faces[0] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[0],TEXTURE_FILTER_BILINEAR);
@@ -3819,6 +3869,9 @@ int main(){
     UnloadWave(wav);
     wav = LoadWaveFromMemory(".ogg",sfx_powerup,sizeof(sfx_powerup));
     s_powerup = LoadSoundFromWave(wav);
+    UnloadWave(wav);
+    wav = LoadWaveFromMemory(".ogg",sfx_damage,sizeof(sfx_damage));
+    s_damage = LoadSoundFromWave(wav);
     UnloadWave(wav);
     
     wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
@@ -3932,6 +3985,11 @@ int main(){
     SetLoadFileDataCallback(NULL);
     b_wheel.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_board;
     b_wheel.materials[1].shader = shader;
+    prepmodel(glblist[41],glbsize[41]);
+    b_battery = LoadModel("tuffness.glb");
+    SetLoadFileDataCallback(NULL);
+    b_battery.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_battery;
+    b_battery.materials[1].shader = shader;
     
     
     prepmodel(glblist[33],glbsize[33]);
