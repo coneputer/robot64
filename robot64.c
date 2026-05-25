@@ -67,6 +67,7 @@ typedef struct {
     bool nocol;
     bool keepload;
     bool hide;
+    bool bounds;
     Matrix mat;
 } Terrain;
 typedef struct {
@@ -1535,8 +1536,13 @@ void map_tutorial(){
     tmp.x = 0;tmp.y = 28;tmp.z = 352;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
     24,16,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
     
-    tmp.x = 0;tmp.y = 148.025;tmp.z = 308;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    152,.05,768,8));tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
+    tmp.x = 0;tmp.y = 148.025;tmp.z = 308;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCube(
+    152,.05,768));tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
+
+    tmp.x = 0;tmp.y = -64;tmp.z = 252;tmp.s = 1;tmp.bounds=true;tmp.mdl=LoadModelFromMesh(GenMeshCube(
+    88,8,304));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLACK;tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
+    tmp.x = 0;tmp.y = -16;tmp.z = 464;tmp.s = 1;tmp.bounds=true;tmp.mdl=LoadModelFromMesh(GenMeshCube(
+    16,8,40));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLACK;tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
     
     newg.count = i;
     gm3d = newg;
@@ -1697,6 +1703,7 @@ bool plrpole=false;
 Vector3 plrpolepos={0};
 Vector3 plrpolesiz={0};
 bool oplrg = false;
+int whichground = 0;
 bool plrdancing = false;
 bool plrgotice = false;
 bool plrswip = false;
@@ -2366,6 +2373,7 @@ RayCollision beebtryground(Vector3 off, float raydist){
                 plrg = true;
                 skibidi = test;
                 closest=test.distance;
+                whichground=i;
             }
         }
     }
@@ -3599,7 +3607,7 @@ void stepchar(){
         }else{
             skibidi = (RayCollision){0};
         }
-        if(plrpos.y-1<-400&&!plrdebounce){
+        if((plrpos.y-1<-400||(plrg&&gm3d.items[whichground].bounds))&&!plrdebounce){
             trstype=1;transition(true);
             plrdebounce=true;
         }
