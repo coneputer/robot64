@@ -9,8 +9,9 @@ LuaW1z and UncagedTwistedMania (roblox) for the decomp this is based off of (and
 
 # Debug controls
 Press `G` to noclip  
-Press `H` to toggle jetpack (temporary?)  
-Press `J` to toggle skateboard (temporary?)
+Press `H` to toggle jetpack  
+Press `J` to toggle skateboard  
+Press `L` to take damage
 
 # Compiling
 you need mingw64 version of gcc to do this  
