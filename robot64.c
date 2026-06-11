@@ -4614,7 +4614,7 @@ static void UpdateDrawFrame(void){
             float sliderbgsize = framesize*.05;
             float sliderposy = framey+(framesize*.54)+(btsize/2);
 
-            float volumeSliderPositionY = framey + (framesize * .54) + (btsize * 2.5);
+            float volumeSliderPositionY = framey + (framesize * .54) + (btsize * 3);
             
             bool ishovering = false;
             switch(pausemenu){
@@ -4684,7 +4684,7 @@ static void UpdateDrawFrame(void){
                     t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+sensitivity*sw*.2-slidersize/2,sliderposy,slidersize,slidersize},(Vector2){0},0,WHITE
                     );
 
-                    r64text("Volume:",sw2,volumeSliderPositionY-32,btsize,.5,0,(Color){200,200,200,255});
+                    r64text("Volume:",sw2,volumeSliderPositionY-(sliderbgsize * 2.5),btsize,.5,0,(Color){200,200,200,255});
                     DrawRectangleV((Vector2){sw*.4,volumeSliderPositionY-(sliderbgsize/2)},(Vector2){sw*.2,sliderbgsize},GREEN);
                     DrawTexturePro(
                     t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+gameVolume*sw*.2-slidersize/2,volumeSliderPositionY,slidersize,slidersize},(Vector2){0},0,WHITE
