@@ -2431,6 +2431,8 @@ struct ActiveSounds {
 };
 struct ActiveSounds activeSounds = {0};
 
+float gameVolume = 1.0;
+
 // Plays a sound at 3d coordinates. Usage: ConfigureSoundForPosition(camera, sound, (Vector3){x,y,z}, maxDistance);
 void ConfigureSoundForPosition(Camera listener, Sound sound, Vector3 position, float maxDist, float rolloff,float volumeModifier)
 {
@@ -2518,7 +2520,7 @@ RayCollision oskibidi = {0};
 float gravmult = 1;
 uint8_t ledgetimer = 0;
 uint8_t poundtimer = 0;
-float sensitivity = .5;
+float sensitivity = 0.5;
 bool plranchored = false;
 uint8_t attacktimer = 0;
 bool mouselock = false;
@@ -4124,6 +4126,9 @@ static void dotheframecrap(){
         mx = m.x;
         my = m.y;
     }
+
+    SetMasterVolume(gameVolume);
+
     //step frame
     if(paused){
         songplay=7;
@@ -4608,6 +4613,8 @@ static void UpdateDrawFrame(void){
             float slidersize = sh*.08;
             float sliderbgsize = framesize*.05;
             float sliderposy = framey+(framesize*.54)+(btsize/2);
+
+            float volumeSliderPositionY = framey + (framesize * .54) + (btsize * 2.5);
             
             bool ishovering = false;
             switch(pausemenu){
@@ -4676,6 +4683,12 @@ static void UpdateDrawFrame(void){
                     DrawTexturePro(
                     t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+sensitivity*sw*.2-slidersize/2,sliderposy,slidersize,slidersize},(Vector2){0},0,WHITE
                     );
+
+                    r64text("Volume:",sw2,volumeSliderPositionY-32,btsize,.5,0,(Color){200,200,200,255});
+                    DrawRectangleV((Vector2){sw*.4,volumeSliderPositionY-(sliderbgsize/2)},(Vector2){sw*.2,sliderbgsize},GREEN);
+                    DrawTexturePro(
+                    t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+gameVolume*sw*.2-slidersize/2,volumeSliderPositionY,slidersize,slidersize},(Vector2){0},0,WHITE
+                    );
                     
                     
                     if((IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&ishovering)||IsKeyPressed(KEY_SPACE)
@@ -4698,6 +4711,10 @@ static void UpdateDrawFrame(void){
                     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)&&m.y>sliderposy-(sliderbgsize/2)&&m.y<sliderposy+(sliderbgsize/2)){
                         sensitivity = fmax(0,fmin(1,(m.x/sw)*5-(1/.5)));
                         sensitivity = round(sensitivity*8)/8;
+                    }
+                    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)&&m.y>volumeSliderPositionY-(sliderbgsize/2)&&m.y<volumeSliderPositionY+(sliderbgsize/2)){
+                        gameVolume = fmax(0,fmin(1,(m.x/sw)*5-(1/.5)));
+                        //gameVolume = round(gameVolume*8)/8;
                     }
                     break;
             }
