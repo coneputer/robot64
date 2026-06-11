@@ -97,6 +97,7 @@ typedef struct {
     #define V_TALK_MODEL 0
     #define V_TALK_SIZ 1
 #define OTYPE_ICED 5
+    #define V_ICED_ID 0
 #define OTYPE_WATR 6
 #define OTYPE_POLE 7
 #define OTYPE_ICDR 8
@@ -1432,6 +1433,7 @@ void map_hub(){
     addvar(tme.uid,V_TELE_TOMAP,M_TURTLE);
     addvar(tme.uid,V_TELE_TOX,-208.902);addvar(tme.uid,V_TELE_TOY,85.29);addvar(tme.uid,V_TELE_TOZ,-236.065);
     tme = crEnt(OTYPE_ICED,-141.19,38,91.62, 1.545, 3.197, 1.783);
+    addvar(tme.uid, V_ICED_ID, 0);
     entlist.items[i]=tme;i++;
     tme = crEnt(OTYPE_WATR,.026,-3.98,666.921,1391.189,6,932.26);
     tme.mdl = LoadModelFromMesh(GenMeshPlaneT(tme.size.x+15,tme.size.z+15,1,1,20,20));
@@ -2557,6 +2559,21 @@ Vector3 snapto = {0};
 int candy = 0;
 int scandy = 0;
 int icedcream = 0;
+int icedcreamid = 0;
+bool icedfound[64] = {};
+
+void resetGameVariables() {
+    scandy = 0;
+    candy = 0;
+    icedcream = 0;
+    //icedfound = {}; // IT WONT LET ME
+    for (int i = 0; i < 64; i++) icedfound[i] = false;
+}
+
+void loadsave() {
+    // TODO: load save
+}
+
 void stepchar(){
     bool rightcursor = mouselock||IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
     float yimh = 0;
@@ -3403,6 +3420,7 @@ void stepchar(){
         if(icedtimer>0){
             icedtimer--;
             if(icedtimer==60){
+                icedfound[icedcreamid] = true;
                 icedcream++; //replace this later
                 plrhealth=4;
             }else if(icedtimer==0){
@@ -3481,16 +3499,21 @@ void stepchar(){
                             }
                             break;
                         case OTYPE_ICED:
-                            icedtimer=180;
-                            PlaySound(s_gotice);
-                            bgmvols[0]=0;bgmvols[2]=0;bgmvols[1]=0;bgmvols[3]=0;
+                            icedcreamid = findvar(v->uid, V_ICED_ID);
+                            if (icedfound[icedcreamid] == false) {
+                                icedtimer=180;
+                                PlaySound(s_gotice);
+                                bgmvols[0]=0;bgmvols[2]=0;bgmvols[1]=0;bgmvols[3]=0;
+                                plrgotice=true;
+                                plranchored=true;
+                                plrpoint=Vector3Scale(forwardmover,-1);
+                                plrorient=plrpoint;
+                                icedrot=rand()%4;
+                                canmove=false;
+                            } else {
+                                candy += 10; // i lowkey forgot the candy it gives :P
+                            }
                             v->disabled=true;
-                            plrgotice=true;
-                            plranchored=true;
-                            plrpoint=Vector3Scale(forwardmover,-1);
-                            plrorient=plrpoint;
-                            icedrot=rand()%4;
-                            canmove=false;
                             break;
                         case OTYPE_WATR:
                             if(isbsbox&&above){
@@ -4368,6 +4391,8 @@ static void UpdateDrawFrame(void){
                                 ));
                                 break;
                             case OTYPE_ICED:
+                                bool _collected = icedfound[(int)findvar(v->uid, V_ICED_ID)];
+                                // TODO: change material based on _collected
                                 DrawMesh(ml_icedcream.meshes[0],ml_icedcream.materials[1],
                                 MatrixMultiply(
                                     MatrixScale(.0309,.03088978424,.0308824803),
@@ -4465,7 +4490,12 @@ static void UpdateDrawFrame(void){
                 ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
 #endif
             )&&(!trsing)){
-                tomap = titleselt>0?M_TUTORIAL:M_HUB;
+                tomap = titleselt>0?M_TUTORIAL:M_HUB; // debug
+
+                resetGameVariables();
+                if (titleselt == 0) { loadsave(); }
+                //tomap = icedcream > 0 ? M_HUB : M_TUTORIAL;
+
                 if(tomap==M_TUTORIAL){
                     tomapx=0;
                     tomapy=6;
@@ -4678,10 +4708,14 @@ static void UpdateDrawFrame(void){
                                 pauseselt=0;
                                 break;
                             case 5:
+                                paused = !paused;
+
+                                tomapx=-12.433;
+                                tomapy=15.02;
+                                tomapz=56.217;
                                 tomap = M_HUB;
                                 trstype = 0;
                                 transition(true);
-                                paused = !paused;
                                 break;
                             case 6:
                                 tomap = M_TITLE;
@@ -4782,7 +4816,7 @@ static void UpdateDrawFrame(void){
         
         //except for debugging stuff because that oesnt really matter
         // DEBUGGGING TEXTs
-        r64text(TextFormat("Robot 64 Recompiled WIP v25 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
+        r64text(TextFormat("Robot 64 Recompiled WIP v26 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
         r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,100,20,0,0,WHITE);
         //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
         //for (i=0;i<activeSounds.count;i++){
