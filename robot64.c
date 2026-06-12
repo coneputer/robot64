@@ -1265,24 +1265,27 @@ typedef struct {
 } GameSave;
 
 int savegame() {
-    // TODO: save
     GameSave save = {candy, icedfound};
-    
-    FILE* file = fopen("save.r64s", "wb");
-    if (file == NULL) {
-        printf("could not open file");
-        //perror(strcat("could not open ", path));
-        return 1;
-    }
 
-    size_t num_written = fwrite(&save, sizeof(GameSave), 1, file);
-    if (num_written != 1) {
-        printf("could not open file");
-        //perror(strcat("could not open ", path));
-        return 2;
-    }
+    #if defined(PLATFORM_WEB)
+        printf("TODO: web saving")
+    #else
+        FILE* file = fopen("save.r64s", "wb");
+        if (file == NULL) {
+            printf("could not open file");
+            //perror(strcat("could not open ", path));
+            return 1;
+        }
 
-    fclose(file);
+        size_t num_written = fwrite(&save, sizeof(GameSave), 1, file);
+        if (num_written != 1) {
+            printf("could not open file");
+            //perror(strcat("could not open ", path));
+            return 2;
+        }
+
+        fclose(file);
+    #endif
 
     printf("saved!");
 
@@ -1290,20 +1293,23 @@ int savegame() {
 }
 
 int loadsave() {
-    // TODO: load save
-    FILE* file = fopen("save.r64s", "rb");
-    if (file == NULL) {
-        printf("could not open file");
-        return 1;
-    }
-
     GameSave save;
 
-    while (fread(&save, sizeof(save), 1, file) == 1) {
-        printf("READ");
-    }
+    #if defined(PLATFORM_WEB)
+        printf("TODO: web loading")
+    #else
+        FILE* file = fopen("save.r64s", "rb");
+        if (file == NULL) {
+            printf("could not open file");
+            return 1;
+        }
+        
+        while (fread(&save, sizeof(save), 1, file) == 1) {
+            printf("READ");
+        }
 
-    fclose(file);
+        fclose(file);
+    #endif
 
     candy = save.candy;
     for (int i = 0; i < 64; i++) icedfound[i] = save.icedfound[i];
