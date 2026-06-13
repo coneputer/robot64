@@ -1550,6 +1550,7 @@ bool plrpound=false;
 uint64_t poundtimer = 0;
 int otilebx = -1;
 int otileby = -1;
+bool firstpress = true;
 
 void clicktile(int bx, int by, int mdl, bool pound) {
     if (!mineInteract) return;
@@ -1573,6 +1574,35 @@ void clicktile(int bx, int by, int mdl, bool pound) {
         }
         if (mineTile.flag) return;
         updateFace(false, true, false, false);
+
+        if (firstpress) {
+            for (int ox = -1; ox < 2; ox++) {
+                for (int oy = -1; oy < 2; oy++) {
+                    int x = bx + ox;
+                    int y = by + oy;
+                    MineTile neighbour = mineBoard[x][y];
+
+                    if (neighbour.bomb) {
+                        int nx = rand() % BOARD_SIZEX;
+                        int ny = rand() % BOARD_SIZEY;
+                        MineTile at = mineBoard[nx][ny];
+                        while (at.bomb || (nx <= bx+1 && nx >= bx-1 && ny >= by-1 && ny <= by+1)) {
+                            nx = rand() % BOARD_SIZEX;
+                            ny = rand() % BOARD_SIZEY;
+                            at = mineBoard[nx][ny];
+                        }
+                        neighbour.bomb = false;
+                        mineBoard[x][y] = neighbour;
+                        at.bomb = true;
+                        mineBoard[nx][ny] = at;
+                    }
+
+                    mineBoard[x][y] = neighbour;
+                    if (x == bx && y == by) mineTile = neighbour;
+                }
+            }
+        }
+        firstpress = false;
 
         mineTile.open = true;
 
@@ -1623,6 +1653,7 @@ void map_mine(){
     
     mineWon = false;
     mineInteract = true;
+    firstpress = true;
 
     unloadassets();
     map = M_MINE;
