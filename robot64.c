@@ -1660,8 +1660,8 @@ void map_mine(){
 
     int mines = 0;
     while (mines < BOARD_MINES) {
-        int x = rand() % (BOARD_SIZEX + 1);
-        int y = rand() % (BOARD_SIZEY + 1);
+        int x = rand() % BOARD_SIZEX;
+        int y = rand() % BOARD_SIZEY;
 
         MineTile mineTile = mineBoard[x][y];
         if (!mineTile.bomb) {
