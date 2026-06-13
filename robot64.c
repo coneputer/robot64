@@ -1268,7 +1268,7 @@ int savegame() {
     GameSave save = {candy, icedfound};
 
     #if defined(PLATFORM_WEB)
-        printf("TODO: web saving")
+        printf("TODO: web saving");
     #else
         FILE* file = fopen("save.r64s", "wb");
         if (file == NULL) {
@@ -1296,7 +1296,7 @@ int loadsave() {
     GameSave save;
 
     #if defined(PLATFORM_WEB)
-        printf("TODO: web loading")
+        printf("TODO: web loading");
     #else
         FILE* file = fopen("save.r64s", "rb");
         if (file == NULL) {
