@@ -3237,6 +3237,9 @@ void stepchar(){
                         }
                         PlaySoundAtBeebo(s_jump,1);
                         fallvr*=-1;
+
+                        otilebx = -1;
+                        otileby = -1;
                     }
                 }else if(plrpole){
                     PlaySoundAtBeebo(s_jump2,1);
@@ -3578,6 +3581,7 @@ void stepchar(){
                 if((!v->disabled)&&(ischbox||isbsbox||isgrbox)){
                     switch(v->type){
                         case OTYPE_TILE:
+                            if (plrjumping) break;
                             int bx = findvar(v->uid, V_TILE_X);
                             int by = findvar(v->uid, V_TILE_Y);
                             int mdl = findvar(v->uid, V_TILE_MDL);
