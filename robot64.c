@@ -248,41 +248,11 @@ const unsigned char sfx_sa5[]={ //step A 5
 };
 
 //music
-const unsigned char hub_bgm[]={
-#embed "music/hub world.ogg"
-};
-const unsigned char hub_bgmA[]={
-#embed "music/hub world (air).ogg"
-};
-const unsigned char hub_bgmW[]={
-#embed "music/hub-world (water).ogg"
-};
-const unsigned char hub_bgmC[]={
-#embed "music/hub world (cool).ogg"
-};
-const unsigned char hub_bgmP[]={
-#embed "music/hub world (paused).ogg"
+const unsigned char mine_bgm[]={
+#embed "music/cheater.mp3"
 };
 const unsigned char title_bgm[]={
-#embed "music/title.ogg"
-};
-const unsigned char tutorial_bgm[]={
-#embed "music/enjoy your stay.ogg"
-};
-const unsigned char tutorial_bgmP[]={
-#embed "music/enjoy your stay (paused).ogg"
-};
-const unsigned char turtle_bgm[]={
-#embed "music/snippy dippy.ogg"
-};
-const unsigned char turtle_bgmA[]={
-#embed "music/snippy dippy (air).ogg"
-};
-const unsigned char turtle_bgmW[]={
-#embed "music/snippy dippy (water).ogg"
-};
-const unsigned char turtle_bgmP[]={
-#embed "music/snippy dippy paused.ogg"
+#embed "music/title.mp3"
 };
 //textures
 const unsigned char tex_padding[]={
@@ -317,9 +287,6 @@ const unsigned char img_inv[]={
 };
 const unsigned char tex_sky_default[]={
 #embed "skybox/default.png"
-};
-const unsigned char tex_sky_title[]={
-#embed "skybox/title.png"
 };
 const unsigned char tex_skin1[]={
 #embed "textures/beebo/1.png"
@@ -414,8 +381,8 @@ const unsigned char tex_water[]={
 const unsigned char tex_sun[]={
 #embed "textures/sun.png"
 };
-const unsigned char tex_sky_hub[]={
-#embed "skybox/hub.png"
+const unsigned char tex_sky_void[]={
+#embed "skybox/void.png"
 };
 const unsigned char img_frame[]={
 #embed "textures/frame.png"
@@ -431,9 +398,6 @@ const unsigned char img_3dUI[]={
 };
 const unsigned char img_stick2[]={
 #embed "textures/stick2.png"
-};
-const unsigned char tex_sky_turtle[]={
-#embed "skybox/turtle.png"
 };
 const unsigned char tex_icedoor[]={
 #embed "textures/lock2.png"
@@ -1343,9 +1307,7 @@ Entity spawnIcedoor(float x,float y,float z,float sx,float sy,float sz,int req){
 }
 //maps
 #define M_TITLE 0
-#define M_HUB 1
-#define M_TUTORIAL 2
-#define M_TURTLE 3
+#define M_MINE 1
 bool usechar = false;
 short map;
 uint8_t titleselt;
@@ -1365,10 +1327,10 @@ void map_title(){
     titleselt = 0;
     map = M_TITLE;
     usechar = false;
-	Image img = LoadImageFromMemory(".png",tex_sky_title,sizeof(tex_sky_title));
+	Image img = LoadImageFromMemory(".png",tex_sky_void,sizeof(tex_sky_void));
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
     UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",title_bgm,sizeof(title_bgm));
+    bgm = LoadMusicStreamFromMemory(".mp3",title_bgm,sizeof(title_bgm));
 	bgm.looping = true;
     canbgmA=false;
     canbgmC=false;
@@ -1377,401 +1339,53 @@ void map_title(){
 	PlayMusicStream(bgm);
     gm3dlist newg;
     int i=0;
-    Terrain tmp = {0}; //robot 64 logo
+    Terrain tmp = {0}; // logo
     tmp.x = 0;tmp.y = 0;tmp.z = 23;
     tmp.s = .03882770207;tmp.model = 2;tmp.tex = 2;
     newg.items[i] = tmp;i++;
-    //beams length in Z: 67.5 studs heh 67 67 67 67 67 67 67
-    tmp = (Terrain){0}; //beam1
-    tmp.x = 0;tmp.y = 0;tmp.z = 6.749;
-    tmp.s = 1;tmp.model = 34;tmp.tex = 20;
-    tmp.glow=true;newg.items[i] = tmp;i++;
     newg.count = i;
     gm3d = newg;
     compileassets();
 }
-void map_hub(){
-    setamb(159,154,135,1);
-    setsundir2(14,54);
-    iswallrad=true;wallrad=512;
-    unloadassets();
-    map = M_HUB;
-	Image img = LoadImageFromMemory(".png",tex_sky_hub,sizeof(tex_sky_hub));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",hub_bgm,sizeof(hub_bgm));bgm.looping = true;PlayMusicStream(bgm);
-    bgmA = LoadMusicStreamFromMemory(".ogg",hub_bgmA,sizeof(hub_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
-    bgmW = LoadMusicStreamFromMemory(".ogg",hub_bgmW,sizeof(hub_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
-    bgmC = LoadMusicStreamFromMemory(".ogg",hub_bgmC,sizeof(hub_bgmC));bgmC.looping = true;PlayMusicStream(bgmC);canbgmC=true;
-    bgmP = LoadMusicStreamFromMemory(".ogg",hub_bgmP,sizeof(hub_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
-    gm3dlist newg;
-    int i=0;
-    Terrain tmp = {0}; //hub grass
-    tmp.x = 3.241f;tmp.y = 194.599f;tmp.z = 0.463f;
-    tmp.s = 41.92438995f;tmp.model = 0;tmp.tex = 0;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub cliff
-    tmp.x = 3.24f;tmp.y = 79.377f;tmp.z = 227.391f;
-    tmp.s = 41.92438995f;tmp.model = 1;tmp.tex = 1;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub path
-    tmp.x = -2.933f;tmp.y = 11.083f;tmp.z = 144.166f;
-    tmp.s = 41.92438995f;tmp.model = 3;tmp.tex = 3;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub sand
-    tmp.x = 14.753f;tmp.y = 1.028f;tmp.z = 309.615f;
-    tmp.s = 41.92438995f;tmp.model = 4;tmp.tex = 4;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubout
-    tmp.x = 58.787;tmp.y = 49.15;tmp.z = 195.429;tmp.s = 4.943275534;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 13;tmp.tex = 5;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubbottom
-    tmp.x = 58.786;tmp.y = -14.61;tmp.z = 195.428;tmp.s = 4.943275534;
-    tmp.sy = 5.118946922;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 14;tmp.tex = 5;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub logo
-    tmp.x = 9.79;tmp.y = 18.691;tmp.z = 195.165;tmp.s = 0.07183186389;
-    tmp.sz = 0.07053696656;
-    tmp.rx = 90*M_TORAD;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 2;tmp.tex = 2;
-    tmp.nocol=true;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubcloudfloor
-    tmp.x = 22.208;tmp.y = 18.749;tmp.z = 195.429;tmp.s = 4.943;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 15;tmp.tex = 6;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubwood
-    tmp.x = 22.207;tmp.y = 33.579;tmp.z = 195.429;tmp.s = 4.943296283;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 16;tmp.tex = 7;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubshop
-    tmp.x = 54.577;tmp.y = 25.081;tmp.z = 168.77;tmp.s = 0.6387276219;
-    tmp.ry = 135.002*M_TORAD;
-    tmp.model = 17;tmp.tex = 8;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubrusty
-    tmp.x = 51.262;tmp.y = 34.939;tmp.z = 172.351;tmp.s = 0.4689069522;
-    tmp.ry = 135.002*M_TORAD;
-    tmp.model = 18;tmp.tex = 9;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubokwall
-    tmp.x = 114.972;tmp.y = 34.32;tmp.z = 195.429;tmp.s = 4.943241379;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 19;tmp.tex = 10;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubgoodfloor
-    tmp.x = 109.411;tmp.y = 18.749;tmp.z = 195.428;tmp.s = 4.943;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 20;tmp.tex = 11;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubstairs
-    tmp.x = 136.944;tmp.y = 34.32;tmp.z = 195.429;tmp.s = 4.9432;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 21;tmp.tex = 12;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubcarpet
-    tmp.x = 114.972;tmp.y = 49.15;tmp.z = 195.429;tmp.s = 4.943241379;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 22;tmp.tex = 13;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubbookwall
-    tmp.x = 114.972;tmp.y = 64.721;tmp.z = 195.429;tmp.s = 4.943241379;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 23;tmp.tex = 14;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubstarryfloor
-    tmp.x = 28.432;tmp.y = 49.892;tmp.z = 195.429;tmp.s = 4.943;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 24;tmp.tex = 15;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //hub hubstars
-    tmp.x = 28.011;tmp.y = 80.678;tmp.z = 195.429;tmp.s = 4.943241153;
-    tmp.ry = 90*M_TORAD;
-    tmp.model = 25;tmp.tex = 16;
-    newg.items[i] = tmp;i++;
-    
-    //tutorial pads
-    img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
-    Texture2D pad = LoadTextureFromImage(img);
-    SetTextureWrap(pad,TEXTURE_WRAP_REPEAT);
-    UnloadImage(img);
-    tmp = (Terrain){0};tmp.x = -12;tmp.y = 37.45;tmp.z = -52;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,16,16,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp;i++;
-    tmp = (Terrain){0};tmp.x = 20;tmp.y = 37.45;tmp.z = -52;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,16,16,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp;i++;
-    tmp = (Terrain){0};tmp.x = 4;tmp.y = 49.45;tmp.z = -52;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    40,8,16,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp;i++;
-    
-    newg.count = i;
-    gm3d = newg;
-    
-    //entities
-    i=0;
-    Entity tme = crEnt(OTYPE_TELE,4,37.45,-52,24,16,1);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_TELE_TOMAP,M_TUTORIAL);
-    addvar(tme.uid,V_TELE_TOX,0);addvar(tme.uid,V_TELE_TOY,44);addvar(tme.uid,V_TELE_TOZ,661.5);
-    tme = crEnt(OTYPE_TELE,27.2,21.7,145.49,4,6,1);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_TELE_TOMAP,M_TURTLE);
-    addvar(tme.uid,V_TELE_TOX,-208.902);addvar(tme.uid,V_TELE_TOY,85.29);addvar(tme.uid,V_TELE_TOZ,-236.065);
-    tme = crEnt(OTYPE_ICED,-141.19,38,91.62, 1.545, 3.197, 1.783);
-    addvar(tme.uid, V_ICED_ID, 0);
-    entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_WATR,.026,-3.98,666.921,1391.189,6,932.26);
-    tme.mdl = LoadModelFromMesh(GenMeshPlaneT(tme.size.x+15,tme.size.z+15,1,1,20,20));
-    tme.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_water;
-    tme.mdl.materials[0].shader = shader;
-    entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_POLE,317.473,51.376,163.876,  2,20.233,2);
-    entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_POWR,58.371,21,170.622, 3.2,3.2,3.2);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_POWR_ID,0);
-    tme = crEnt(OTYPE_POWR,62.591,21,166.401, 3.2,3.2,3.2);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_POWR_ID,1);
-    
-    entlist.items[i]=spawnIcedoor(-32.7,25.05,195.39, 1,12.8,20 ,1);i++;
-    entlist.items[i]=spawnIcedoor(79.5,25.15,195.39, 1,13,20 ,8);i++;
-    entlist.items[i]=spawnIcedoor(123.3,25.15,195.39, 1,13,20 ,16);i++;
-    entlist.items[i]=spawnIcedoor(78.62,56.225,195.435, 1,12.75,19.77 ,20);i++;
-    entlist.items[i]=spawnIcedoor(-9.88,57.225,195.435, 24.824,14.75,25.185 ,32);i++;
-    
-    tme = crEnt(OTYPE_CAND,-48,15,96  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-52,15,101  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-57,15,108  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-61,15,116  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-64,15,126  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-64,15,136  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-63,15,145  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-60,15,155  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-57,15,166  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-54,15,177  ,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-50,15,187  ,4,4,4);entlist.items[i]=tme;i++;
-    
-    entlist.count = i;
-    compileassets();
-}
-void map_tutorial(){
+void map_mine(){
     setamb(153,142,165,1);
     setsundir2(13,40);
     iswallrad=false;
     unloadassets();
-    map = M_TUTORIAL;
-	Image img = LoadImageFromMemory(".png",tex_sky_default,sizeof(tex_sky_default));
+    map = M_MINE;
+	Image img = LoadImageFromMemory(".png",tex_sky_void,sizeof(tex_sky_void));
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
     UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",tutorial_bgm,sizeof(tutorial_bgm));bgm.looping = true;PlayMusicStream(bgm);
+    bgm = LoadMusicStreamFromMemory(".mp3",mine_bgm,sizeof(mine_bgm));bgm.looping = true;PlayMusicStream(bgm);
     canbgmA=false;
     canbgmW=false;
-    bgmP = LoadMusicStreamFromMemory(".ogg",tutorial_bgmP,sizeof(tutorial_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
+    //bgmP = LoadMusicStreamFromMemory(".ogg",tutorial_bgmP,sizeof(tutorial_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
     img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
     Texture2D pad = LoadTextureFromImage(img);
     SetTextureWrap(pad,TEXTURE_WRAP_REPEAT);
     UnloadImage(img);
     gm3dlist newg;
     int i = 0;                                                  //this is just horrible
-    Terrain tmp = {0};tmp.x = 0;tmp.y = -28;tmp.z = 28;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,64,160,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -28;tmp.z = 164;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,64,80,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 12;tmp.z = 180;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,16,48,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 28;tmp.z = 188;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,16,32,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -12;tmp.z = 276;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,96,80,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -28;tmp.z = 380;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,64,128,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -28;tmp.z = 513.5;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,64,69,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -12;tmp.z = 616;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,96,136,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 28;tmp.y = 20;tmp.z = 340;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,32,48,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -28;tmp.y = 20;tmp.z = 340;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,32,48,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
+    Terrain tmp = {0};
+    tmp.x = 0;
+    tmp.y = -28;
+    tmp.z = 28;
+    tmp.s = 1;
+    tmp.mdl=LoadModelFromMesh(GenMeshCubeT(88,64,160,8));
+    tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;
+    tmp.gen = true;
+    newg.items[i] = tmp;
+    i++;
     
-    tmp.x = 0;tmp.y = 28;tmp.z = -56;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,48,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 56;tmp.y = 28;tmp.z = 8;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,48,152,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -56;tmp.y = 28;tmp.z = 8;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,48,152,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 36;tmp.z = 64;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,32,40,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 28;tmp.y = 28;tmp.z = 64;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,48,40,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -28;tmp.y = 28;tmp.z = 64;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,48,40,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 52;tmp.y = 20;tmp.z = 384;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    16,160,600,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -56;tmp.y = 20;tmp.z = 384;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,160,600,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 64;tmp.y = 80;tmp.z = 384;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,40,600,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 64;tmp.y = -4;tmp.z = 384;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,112,600,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 68;tmp.z = 352;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    88,64,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 26;tmp.y = 20;tmp.z = 496;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    36,160,152,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -26;tmp.y = 20;tmp.z = 496;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    36,160,152,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 76;tmp.z = 672;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,48,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 28;tmp.y = 20;tmp.z = 672;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,160,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -28;tmp.y = 20;tmp.z = 672;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    32,160,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
+    newg.count = i;
+    gm3d = newg;
     
-    tmp.x = 0;tmp.y = 76;tmp.z = -72;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    136,144,8,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 76;tmp.z = 688;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    136,144,8,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 72;tmp.y = 76;tmp.z = 308;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,144,768,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = -72;tmp.y = 76;tmp.z = 308;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    8,144,768,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = 28;tmp.z = 352;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
-    24,16,24,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp; i++;
-    
-    tmp.x = 0;tmp.y = 148.025;tmp.z = 308;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCube(
-    152,.05,768));tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
+    //entities
+    i=0;
+    //Entity tme = crEnt(OTYPE_TELE,0,44,668.5,24,16,1);
+    //entlist.items[i]=tme;i++;
 
-    tmp.x = 0;tmp.y = -64;tmp.z = 252;tmp.s = 1;tmp.bounds=true;tmp.mdl=LoadModelFromMesh(GenMeshCube(
-    88,8,304));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLACK;tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
-    tmp.x = 0;tmp.y = -16;tmp.z = 464;tmp.s = 1;tmp.bounds=true;tmp.mdl=LoadModelFromMesh(GenMeshCube(
-    16,8,40));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLACK;tmp.plain = true;tmp.gen = true;tmp.glow = true;newg.items[i] = tmp; i++;
-    
-    newg.count = i;
-    gm3d = newg;
-    
-    //entities
-    i=0;
-    Entity tme = crEnt(OTYPE_TELE,0,44,668.5,24,16,1);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_TELE_TOMAP,M_HUB);
-    addvar(tme.uid,V_TELE_TOX,4);addvar(tme.uid,V_TELE_TOY,33.95);addvar(tme.uid,V_TELE_TOZ,-45);
-    tme = crEnt(OTYPE_TELE,64,56,92.5,8,8,1);
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_TELE_TOMAP,M_HUB);
-    addvar(tme.uid,V_TELE_TOX,4);addvar(tme.uid,V_TELE_TOY,33.95);addvar(tme.uid,V_TELE_TOZ,-45);
-    //breakables
-    entlist.items[i]=spawnBreak(0,8,32);i++;
-    for(int j=0;j<12;j++){
-        entlist.items[i]=spawnBreak(-8+(j%3)*8,(j%6)>2?16:8,j>5?56:48);i++;
-    }
-    for(int j=0;j<9;j++){
-        entlist.items[i]=spawnBreak(-8+(j%3)*8,32,floor(j/3)*8+320);i++;
-    }
-    //candies
-    tme = crEnt(OTYPE_CAND,0,6,8,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,6,16,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,6,24,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,6,64,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,6,72,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,6,152,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,14,152,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,22,152,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,22,160,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,22,168,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,30,168,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,168,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,176,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,184,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,192,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,200,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,42,208,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,45,216,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,45,224,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,42,232,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,240,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,0,38,248,4,4,4);entlist.items[i]=tme;i++;
-    
-    tme = crEnt(OTYPE_CAND,0,6,424,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-2,6,432,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-4,6,440,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-6,11,446,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,16,453,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,16,463,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,12,473,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,7,482,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,6,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,11,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,16,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-2,21,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,2,22,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,7,25,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,7,30,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,7,34,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,2,37,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-2,38,541,4,4,4);entlist.items[i]=tme;i++;
-    tme = crEnt(OTYPE_CAND,-7,41,541,4,4,4);entlist.items[i]=tme;i++;
     entlist.count = i;
-    compileassets();
-}
-void map_turtle(){
-    setamb(143,148,159,1);
-    setsundir2(11.5,49);
-    iswallrad=true;wallrad=516;
-    unloadassets();
-    map = M_TURTLE;
-	Image img = LoadImageFromMemory(".png",tex_sky_turtle,sizeof(tex_sky_turtle));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",turtle_bgm,sizeof(turtle_bgm));bgm.looping = true;PlayMusicStream(bgm);
-    bgmA = LoadMusicStreamFromMemory(".ogg",turtle_bgmA,sizeof(turtle_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
-    bgmW = LoadMusicStreamFromMemory(".ogg",turtle_bgmW,sizeof(turtle_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
-    bgmP = LoadMusicStreamFromMemory(".ogg",turtle_bgmP,sizeof(turtle_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
-    gm3dlist newg;
-    int i = 0;
-    Terrain tmp = {0}; //turtle grass
-    tmp.x = -2.267;tmp.y = 129.751;tmp.z = -10.327;
-    tmp.s = 7.199987404;tmp.model = 26;tmp.tex = 17;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //turtle wall
-    tmp.x = -3.255;tmp.y = 24.725;tmp.z = -13.828;
-    tmp.s = 7.200008669;tmp.model = 27;tmp.tex = 18;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //turtle path
-    tmp.x = 115.193;tmp.y = 153.723;tmp.z = 24.014;
-    tmp.s = 7.200085279;tmp.model = 28;tmp.tex = 3;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //turtle sand
-    tmp.x = 104.01;tmp.y = 45.557;tmp.z = -146.02;
-    tmp.s = 7.2;tmp.model = 29;tmp.tex = 4;
-    newg.items[i] = tmp;i++;
-    tmp = (Terrain){0}; //turtle turtlebody
-    tmp.x = -4;tmp.y = -47;tmp.z = -63;
-    tmp.s = 8.185137841;tmp.model = 30;tmp.tex = 19;
-    newg.items[i] = tmp;i++;
-    
-    newg.count = i;
-    gm3d = newg;
-    
-    //entities
-    i=0;
-    Entity tme = crEnt(OTYPE_TELE,-208.373,94,-235.624,3.1,5.7,7.6); //fix Y later   -208.373,84.792,-235.624
-    entlist.items[i]=tme;i++;
-    addvar(tme.uid,V_TELE_TOMAP,M_HUB);
-    addvar(tme.uid,V_TELE_TOX,27.621);addvar(tme.uid,V_TELE_TOY,21.601);addvar(tme.uid,V_TELE_TOZ,100.188);
-    tme = crEnt(OTYPE_WATR,106.529,42.002,-147.059, 258,61.26,286.5);
-    tme.mdl = LoadModelFromMesh(GenMeshPlaneT(tme.size.x+15,tme.size.z+15,1,1,20,20));
-    tme.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_water;
-    tme.mdl.materials[0].shader = shader;
-    entlist.items[i]=tme;i++;
-    
-    entlist.count = i;
-    
     compileassets();
 }
 
@@ -2012,14 +1626,8 @@ void tomapid(short id){
         case M_TITLE:
             map_title();
             break;
-        case M_HUB:
-            map_hub();
-            break;
-        case M_TUTORIAL:
-            map_tutorial();
-            break;
-        case M_TURTLE:
-            map_turtle();
+        case M_MINE:
+            map_mine();
             break;
     }
     savegame();
@@ -3839,7 +3447,7 @@ int main(){
     //--------------------------------------------------------------------------------------
     //SetConfigFlags(FLAG_WINDOW_TRANSPARENT);
     SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(960, 540, "Robot 64");
+    InitWindow(960, 540, "Robot Sweeper 64");
     rlEnableDepthTest();
     BeginDrawing();
     ClearBackground(BLACK);
@@ -4564,21 +4172,15 @@ static void UpdateDrawFrame(void){
                 ||IsGamepadButtonPressed(0,GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
 #endif
             )&&(!trsing)){
-                tomap = titleselt>0?M_TUTORIAL:M_HUB; // debug
+                tomap = M_MINE;
 
                 resetGameVariables();
                 if (titleselt == 0) { loadsave(); }
-                tomap = icedcream > 0 ? M_HUB : M_TUTORIAL;
+                //tomap = icedcream > 0 ? M_HUB : M_TUTORIAL;
 
-                if(tomap==M_TUTORIAL){
-                    tomapx=0;
-                    tomapy=6;
-                    tomapz=-8;
-                }else{
-                    tomapx=-12.433;
-                    tomapy=15.02;
-                    tomapz=56.217;
-                }
+                tomapx = 0;
+                tomapy = 0;
+                tomapz = 0;
                 trstype=0;transition(true);
             }
             r64text("Continue",sw2,sh*.7f,sh*0.06f,.5f,0,WHITE);
@@ -4759,10 +4361,10 @@ static void UpdateDrawFrame(void){
                     DrawTexturePro(t_3dUI,(Rectangle){384,0,128,128},(Rectangle){btposx,framey+(framesize*.54),btsize,btsize},(Vector2){0},0,WHITE);
                     r64text("Settings",sw2,framey+(framesize*.64),btsize,.5,0,WHITE);
                     DrawTexturePro(t_3dUIB,(Rectangle){128,128,128,128},(Rectangle){btposx,framey+(framesize*.64),btsize,btsize},(Vector2){0},0,WHITE);
-                    r64text("Back to Hub",sw2,framey+(framesize*.74),btsize,.5,0,WHITE);
-                    DrawTexturePro(t_3dUI,(Rectangle){256,0,128,128},(Rectangle){btposx,framey+(framesize*.74),btsize,btsize},(Vector2){0},0,WHITE);
-                    r64text("Quit to Title",sw2,framey+(framesize*.84),btsize,.5,0,WHITE);
-                    DrawTexturePro(t_3dUI,(Rectangle){256,128,128,128},(Rectangle){btposx,framey+(framesize*.84),btsize,btsize},(Vector2){0},0,WHITE);
+                    r64text("Quit to Title",sw2,framey+(framesize*.74),btsize,.5,0,WHITE);
+                    DrawTexturePro(t_3dUI,(Rectangle){256,128,128,128},(Rectangle){btposx,framey+(framesize*.74),btsize,btsize},(Vector2){0},0,WHITE);
+                    //r64text("Quit to Title",sw2,framey+(framesize*.84),btsize,.5,0,WHITE);
+                    //DrawTexturePro(t_3dUI,(Rectangle){256,128,128,128},(Rectangle){btposx,framey+(framesize*.84),btsize,btsize},(Vector2){0},0,WHITE);
                     
                     
                     if((IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&ishovering)||IsKeyPressed(KEY_SPACE)
@@ -4782,7 +4384,7 @@ static void UpdateDrawFrame(void){
                                 pauseselt=0;
                                 break;
                             case 5:
-                                pausemenu=2;
+                                pausemenu=3;
                                 pauseselt=0;
                                 break;
                             case 6:
@@ -4868,17 +4470,6 @@ static void UpdateDrawFrame(void){
 #endif
                     ){
                         switch(pauseselt){
-                            case 0:
-                                paused = !paused;
-
-                                tomapx=-12.433;
-                                tomapy=15.02;
-                                tomapz=56.217;
-                                tomap = M_HUB;
-                                trstype = 0;
-                                transition(true);
-                                ResumeMusicStream(s_slide);
-                                break;
                             case 1:
                                 pausemenu=0;
                                 pauseselt=0;
@@ -4951,7 +4542,7 @@ static void UpdateDrawFrame(void){
         
         //except for debugging stuff because that oesnt really matter
         // DEBUGGGING TEXTs
-        r64text(TextFormat("Robot 64 Recompiled WIP v26 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
+        r64text(TextFormat("Robot Sweeper 64 Recompiled WIP v1 (https://github.com/sonickirb/robotsweeper)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
         r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,100,20,0,0,WHITE);
         //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
         //for (i=0;i<activeSounds.count;i++){
