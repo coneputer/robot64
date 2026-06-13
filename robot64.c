@@ -105,6 +105,9 @@ typedef struct {
     #define V_ICDR_REQ 1
 #define OTYPE_POWR 9
     #define V_POWR_ID 0
+#define OTYPE_TILE 10
+    #define V_TILE_BOMB 0
+    #define V_TILE_OPEN 1
 typedef struct {
     Vector3 pos;
     Vector3 size;
@@ -255,6 +258,55 @@ const unsigned char title_bgm[]={
 #embed "music/title.mp3"
 };
 //textures
+const unsigned char tex_1[]={
+#embed "textures/mine/1.png"
+};
+const unsigned char tex_2[]={
+#embed "textures/mine/2.png"
+};
+const unsigned char tex_3[]={
+#embed "textures/mine/3.png"
+};
+const unsigned char tex_4[]={
+#embed "textures/mine/4.png"
+};
+const unsigned char tex_5[]={
+#embed "textures/mine/5.png"
+};
+const unsigned char tex_6[]={
+#embed "textures/mine/6.png"
+};
+const unsigned char tex_7[]={
+#embed "textures/mine/7.png"
+};
+const unsigned char tex_8[]={
+#embed "textures/mine/8.png"
+};
+
+const unsigned char tex_tile[]={
+#embed "textures/mine/tile.png"
+};
+const unsigned char tex_open[]={
+#embed "textures/mine/open.png"
+};
+
+const unsigned char tex_flag[]={
+#embed "textures/mine/flag.png"
+};
+const unsigned char tex_mine[]={
+#embed "textures/mine/mine.png"
+};
+const unsigned char tex_themine[]={
+#embed "textures/mine/themine.png"
+};
+const unsigned char tex_wrong[]={
+#embed "textures/mine/wrong.png"
+};
+
+const unsigned char tex_blank[]={
+#embed "textures/blank.png"
+};
+
 const unsigned char tex_padding[]={
 #embed "textures/padding.png"
 };
@@ -1347,6 +1399,59 @@ void map_title(){
     gm3d = newg;
     compileassets();
 }
+
+typedef struct MineTexture {
+    bool loaded;
+    Texture2D tex;
+} MineTexture;
+MineTexture mineTextures[32];
+
+Texture2D getMineTexture(int textureID) {
+    MineTexture mineTex = mineTextures[textureID];
+    if (!mineTex.loaded) {
+        Image img = LoadImageFromMemory(".png", tex_tile, sizeof(tex_tile));
+        mineTex.tex = LoadTextureFromImage(img);
+        SetTextureFilter(mineTex.tex, TEXTURE_FILTER_POINT);
+        UnloadImage(img);
+
+        mineTex.loaded = true;
+    }
+
+    mineTextures[textureID] = mineTex; // probably not needed :P
+    return mineTex.tex;
+}
+
+#define TILE_SIZE 10
+#define BOARD_SIZEX 9
+#define BOARD_SIZEY 9
+
+Entity spawnTileEnt(float x, float y, float z) {
+    Terrain t={0};
+    t.x=x;t.y=y;t.z=z;t.s=1;
+    t.mdl=LoadModelFromMesh(GenMeshCube(TILE_SIZE,1,TILE_SIZE));
+    t.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = getMineTexture(0);
+    t.gen=true;
+    t.plain=true;
+    t.glow=true;
+    gm3d.items[gm3d.count]=t;
+    Entity e=crEnt(OTYPE_TILE,x,y,z,1,8,1);
+    // booleans are just 
+    // #define false 0 
+    // #define true 1
+    // so this is fine! (i hope)
+    addvar(e.uid,V_TILE_BOMB,false);
+    addvar(e.uid,V_TILE_OPEN,false);
+    gm3d.count++;
+
+    return e;
+}
+
+typedef struct MineTile {
+    bool loaded;
+    Entity ent;
+} MineTile;
+MineTile mineBoard[BOARD_SIZEX][BOARD_SIZEY];
+
 void map_mine(){
     setamb(153,142,165,1);
     setsundir2(13,40);
@@ -1361,18 +1466,49 @@ void map_mine(){
     canbgmW=false;
     canbgmP=false;
     //bgmP = LoadMusicStreamFromMemory(".ogg",tutorial_bgmP,sizeof(tutorial_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
-    img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
+    img = LoadImageFromMemory(".png",tex_blank,sizeof(tex_blank));
     Texture2D pad = LoadTextureFromImage(img);
     SetTextureWrap(pad,TEXTURE_WRAP_REPEAT);
     UnloadImage(img);
     gm3dlist newg;
     int i = 0;                                                  //this is just horrible
+    // border
     Terrain tmp = {0};
     tmp.x = 0;
-    tmp.y = -28;
-    tmp.z = 28;
+    tmp.y = 0;
+    tmp.z = TILE_SIZE * ((BOARD_SIZEX / 2) + 1);
     tmp.s = 1;
-    tmp.mdl=LoadModelFromMesh(GenMeshCubeT(88,64,160,8));
+    tmp.mdl = LoadModelFromMesh(GenMeshCubeT(TILE_SIZE * (BOARD_SIZEX + 2), 2, TILE_SIZE, 8));
+    tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;
+    tmp.gen = true;
+    newg.items[i] = tmp;
+    i++;
+    tmp = (Terrain){0};
+    tmp.x = 0;
+    tmp.y = 0;
+    tmp.z = -(TILE_SIZE * ((BOARD_SIZEX / 2) + 1));
+    tmp.s = 1;
+    tmp.mdl = LoadModelFromMesh(GenMeshCubeT(TILE_SIZE * (BOARD_SIZEX + 2), 2, TILE_SIZE, 8));
+    tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;
+    tmp.gen = true;
+    newg.items[i] = tmp;
+    i++;
+    tmp = (Terrain){0};
+    tmp.x = (TILE_SIZE * ((BOARD_SIZEX / 2) + 1));
+    tmp.y = 0;
+    tmp.z = 0;
+    tmp.s = 1;
+    tmp.mdl = LoadModelFromMesh(GenMeshCubeT(TILE_SIZE, 2, TILE_SIZE * (BOARD_SIZEY + 2), 8));
+    tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;
+    tmp.gen = true;
+    newg.items[i] = tmp;
+    i++;
+    tmp = (Terrain){0};
+    tmp.x = -(TILE_SIZE * ((BOARD_SIZEX / 2) + 1));
+    tmp.y = 0;
+    tmp.z = 0;
+    tmp.s = 1;
+    tmp.mdl = LoadModelFromMesh(GenMeshCubeT(TILE_SIZE, 2, TILE_SIZE * (BOARD_SIZEY + 2), 8));
     tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;
     tmp.gen = true;
     newg.items[i] = tmp;
@@ -1380,9 +1516,25 @@ void map_mine(){
     
     newg.count = i;
     gm3d = newg;
-    
+
     //entities
     i=0;
+    
+    // load tiles
+    for (int x = 0; x < BOARD_SIZEX; x++) {
+        for (int y = 0; y < BOARD_SIZEY; y++) {
+            MineTile mineTile;
+
+            mineTile.ent = spawnTileEnt((x * TILE_SIZE) - (TILE_SIZE * (BOARD_SIZEX / 2)), 0, (y * TILE_SIZE) - (TILE_SIZE * (BOARD_SIZEY / 2)));
+            entlist.items[i] = mineTile.ent;
+            i++;
+
+            mineTile.loaded = true;
+            mineBoard[x][y] = mineTile;
+        }
+    }
+
+
     //Entity tme = crEnt(OTYPE_TELE,0,44,668.5,24,16,1);
     //entlist.items[i]=tme;i++;
 
@@ -3153,6 +3305,9 @@ void stepchar(){
                 bool above = mps.y<v->pos.y+v->size.y/2;
                 if((!v->disabled)&&(ischbox||isbsbox||isgrbox)){
                     switch(v->type){
+                        case OTYPE_TILE:
+                            printf("HEY! HI!\n");
+                            break;
                         case OTYPE_TELE:
                             if(!plrdebounce){
                                 plrdebounce=true;
@@ -4543,6 +4698,7 @@ static void UpdateDrawFrame(void){
         // DEBUGGGING TEXTs
         r64text(TextFormat("Robot Sweeper 64 Recompiled WIP v1 (https://github.com/sonickirb/robotsweeper)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
         r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,100,20,0,0,WHITE);
+        r64text(TextFormat("FPS: %.2f", 1 / dt),20,120,20,0,0,WHITE);
         //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
         //for (i=0;i<activeSounds.count;i++){
         //    struct SoundInstance *s = &activeSounds.instances[i];
