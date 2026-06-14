@@ -1525,7 +1525,7 @@ bool firstpress = true;
 
 int getTileTextureID(int x, int y, int bx, int by) {
     MineTile mineTile = mineBoard[x][y];
-    if (!mineTile.loaded) return;
+    if (!mineTile.loaded) return 0;
 
     int textureID = 0;
     if (mineTile.open) textureID = 1;
