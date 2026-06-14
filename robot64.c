@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
+#include <float.h>
 #define M_TORAD pi/180
 #define M_TODEG 180/pi
 
@@ -69,6 +70,7 @@ typedef struct {
     bool hide;
     bool bounds;
     Matrix mat;
+    BoundingBox wbox;
 } Terrain;
 typedef struct {
     Terrain items[256];
@@ -1062,6 +1064,28 @@ Matrix MatrixRotateXYZa(Vector3 rot){
     deeznuts = MatrixMultiply(deeznuts,MatrixRotateXYZ((Vector3){0,rot.y,0}));
     return deeznuts;
 }
+BoundingBox TransformBoundingBox(BoundingBox box, Matrix mat) {
+    Vector3 corners[8] = {
+        { box.min.x, box.min.y, box.min.z },
+        { box.max.x, box.min.y, box.min.z },
+        { box.min.x, box.max.y, box.min.z },
+        { box.max.x, box.max.y, box.min.z },
+        { box.min.x, box.min.y, box.max.z },
+        { box.max.x, box.min.y, box.max.z },
+        { box.min.x, box.max.y, box.max.z },
+        { box.max.x, box.max.y, box.max.z },
+    };
+    BoundingBox result = {
+        { FLT_MAX,  FLT_MAX,  FLT_MAX },
+        { -FLT_MAX, -FLT_MAX, -FLT_MAX }
+    };
+    for (int i = 0; i < 8; i++) {
+        Vector3 t = Vector3Transform(corners[i], mat);
+        result.min = Vector3Min(result.min, t);
+        result.max = Vector3Max(result.max, t);
+    }
+    return result;
+}
 Matrix trgetm(uint8_t i){
     Matrix deeznuts = MatrixIdentity();
     deeznuts = MatrixMultiply(deeznuts,MatrixScale(gm3d.items[i].s*gm3d.items[i].sx,
@@ -1079,6 +1103,7 @@ void compileassets(){
     printf("compileassets1\n");
     int i;
     for(i=0;i<gm3d.count;i++){
+        Terrain *v = &gm3d.items[i];
         if(gm3d.items[i].sx==0){gm3d.items[i].sx=1;}
         if(gm3d.items[i].sy==0){gm3d.items[i].sy=1;}
         if(gm3d.items[i].sz==0){gm3d.items[i].sz=1;}
@@ -1106,7 +1131,9 @@ void compileassets(){
             }
             gm3d.items[i].mdl = m;
         }
-        gm3d.items[i].mat = trgetm(i);
+        v->mat = trgetm(i);
+        BoundingBox local = GetModelBoundingBox(v->mdl);
+        v->wbox = TransformBoundingBox(local, v->mat);
     }
     printf("compileassets2\n");
 }
@@ -1957,43 +1984,63 @@ Vector3 projv3(Vector3 target,Vector3 planenormal){
     }
 }
 
-scuffedrays scuffedcol(Vector3 pos,float radius,Vector3 only,bool full){
-    scuffedrays Skibidigyats = {0};
-    uint8_t j=0;
-    int i = 0;
-    float lowv = 100.0f;
-    int8_t lowi = -1;
-    for(int8_t x=-1;x<2;x++){
-        for(int8_t y=-1;y<2;y++){
-            for(int8_t z=-1;z<2;z++){
-                Vector3 ndir = (Vector3){x,y,z};
-                Vector3 dir = Vector3Normalize(ndir);
-                if(!((x==0)&&(y==0)&&(z==0))&&Vector3DotProduct(dir,only)>=0&&(full||Vector3Length(ndir)==1)){
-                    Ray r = (Ray){pos,dir};
-                    for(i=0;i<gm3d.count;i++){
-                        Terrain *v = &gm3d.items[i];
-                        if(!v->nocol){
-                            RayCollision test = GetRayCollisionMesh(r,v->mdl.meshes[0],v->mat);
-                            if(test.hit&&(test.distance<=radius)){
-                                float odist = Skibidigyats.results[j].distance;
-                                if(odist==0||(odist>=test.distance)){
-                                    Skibidigyats.results[j] = test;
-                                    if(test.distance<lowv){
-                                        lowv=test.distance;
-                                        lowi=j;
-                                        Skibidigyats.v3used = dir;
-                                    }
-                                }
-                            }
-                        }
+typedef struct {
+    Vector3 dir;
+    Vector3 raw;
+} RayDir;
+
+static RayDir RAY_DIRS[26];
+static int RAY_DIR_COUNT = 0;
+
+void initDirs(void) {
+    RAY_DIR_COUNT = 0;
+    for (int8_t x = -1; x < 2; x++)
+    for (int8_t y = -1; y < 2; y++)
+    for (int8_t z = -1; z < 2; z++) {
+        if (x == 0 && y == 0 && z == 0) continue;
+        Vector3 raw = {x, y, z};
+        RAY_DIRS[RAY_DIR_COUNT++] = (RayDir){
+            .dir = Vector3Normalize(raw),
+            .raw = raw
+        };
+    }
+}
+
+scuffedrays scuffedcol(Vector3 pos, float radius, Vector3 only, bool full) {
+    scuffedrays result = {0};
+    result.lowind = -1;
+    float lowv = radius*2.0f;
+    uint8_t j = 0;
+    for (int d = 0; d < RAY_DIR_COUNT; d++) {
+        Vector3 dir = RAY_DIRS[d].dir;
+        Vector3 raw = RAY_DIRS[d].raw;
+        bool isCardinal = (raw.x == 0) + (raw.y == 0) + (raw.z == 0) == 2;
+        if (!full && !isCardinal) continue;
+        if (Vector3DotProduct(dir, only) < 0.0f) continue;
+        for (int i = 0; i < gm3d.count; i++) {
+            Terrain *v = &gm3d.items[i];
+            if (v->nocol) continue;
+            if (!GetRayCollisionBox((Ray){pos,dir}, v->wbox).hit) continue;
+            RayCollision hit = GetRayCollisionMesh(
+                (Ray){pos, dir},
+                v->mdl.meshes[0],
+                v->mat
+            );
+            if (hit.hit && hit.distance <= radius) {
+                float prev = result.results[j].distance;
+                if (prev == 0 || prev >= hit.distance) {
+                    result.results[j] = hit;
+                    if (hit.distance < lowv) {
+                        lowv = hit.distance;
+                        result.lowind = j;
+                        result.v3used = dir;
                     }
-                    j++;
                 }
             }
         }
+        j++;
     }
-    Skibidigyats.lowind = lowi;
-    return Skibidigyats;
+    return result;
 }
 
 void loadskin(uint8_t id){
@@ -3681,14 +3728,12 @@ void stepchar(){
             if(Vector3Length(plrvel)>300){
                 plrvel = Vector3Scale(Vector3Normalize(plrvel),300);
             }
-            for(i=0;i<4;i++){
-                Vector3 slowplrvel = Vector3Scale(plrvel,.25f/60);
-                plrpos = Vector3Add(plrpos,slowplrvel);
-                scuffedrays colres = scuffedcol(plrpos,1.5f,Vector3Normalize(plrvel),i==3);
-                if(colres.lowind!=-1){
-                    plrvel = projv3(plrvel,colres.results[colres.lowind].normal);
-                    plrpos = Vector3Subtract(colres.results[colres.lowind].point,Vector3Scale(colres.v3used,1.5f));
-                }
+            Vector3 slowplrvel = Vector3Scale(plrvel,1.0f/60);
+            plrpos = Vector3Add(plrpos,slowplrvel);
+            scuffedrays colres = scuffedcol(plrpos,1.5f,Vector3Normalize(plrvel),true);
+            if(colres.lowind!=-1){
+                plrvel = projv3(plrvel,colres.results[colres.lowind].normal);
+                plrpos = Vector3Subtract(colres.results[colres.lowind].point,Vector3Scale(colres.v3used,1.5f));
             }
             //this is bodygyro movement
             plrorient = Vector3Normalize(Vector3Lerp(plrorient,plrgyro,dt*10));
@@ -4161,6 +4206,8 @@ int main(){
     map_title();
     transition(false);
     SetExitKey(KEY_NULL);
+    // init directions for collision detection
+    initDirs();
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(dotheframecrap, 60, 1);
 #else
