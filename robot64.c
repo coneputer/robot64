@@ -4988,6 +4988,10 @@ static void UpdateDrawFrame(void){
                             case 1:
                                 stillcam=!stillcam;
                                 break;
+                            case 2:
+                                theme++;
+                                if (theme > 1) theme = 0;
+                                break;
                             default:
                                 PlaySound(s_cancel);
                         }
