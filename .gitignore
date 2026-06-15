@@ -64,6 +64,6 @@ robot64.rc.data
 robot64.rc.data.old
 robot64.exe
 robot64
-save.r64s
+*.r64s
 
 raylib/
