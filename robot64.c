@@ -172,566 +172,121 @@ const bool gr3[]={ //if can be activated by beebo standing on it
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
 
-//embedded files
-
-//sfx
-const unsigned char sfx_loadto[]={
-#embed "sfx/loadmapout.ogg"
-};
-const unsigned char sfx_loadfr[]={
-#embed "sfx/loadmapin.ogg"
-};
-const unsigned char sfx_jump[]={
-#embed "sfx/jump.ogg"
-};
-const unsigned char sfx_djump[]={
-#embed "sfx/djump.ogg"
-};
-const unsigned char sfx_dive[]={
-#embed "sfx/dive.ogg"
-};
-const unsigned char sfx_jump2[]={
-#embed "sfx/misc-jump.ogg"
-};
-const unsigned char sfx_land[]={
-#embed "sfx/land.ogg"
-};
-const unsigned char sfx_slide[]={
-#embed "sfx/slide.ogg"
-};
-const unsigned char sfx_smack[]={
-#embed "sfx/smack.ogg"
-};
-const unsigned char sfx_spin[]={
-#embed "sfx/spin.ogg"
-};
-const unsigned char sfx_flip[]={
-#embed "sfx/flip.ogg"
-};
-const unsigned char sfx_candy[]={
-#embed "sfx/candy.ogg"
-};
-const unsigned char sfx_break[]={
-#embed "sfx/break-box.ogg"
-};
-const unsigned char sfx_gotice[]={
-#embed "sfx/get-ice-cream.ogg"
-};
-const unsigned char sfx_pole[]={
-#embed "sfx/pole.ogg"
-};
-const unsigned char sfx_icedoor[]={
-#embed "sfx/unlock-door.ogg"
-};
-const unsigned char sfx_cancel[]={
-#embed "sfx/cancel.ogg"
-};
-const unsigned char sfx_powerup[]={
-#embed "sfx/powerup.ogg"
-};
-const unsigned char sfx_damage[]={
-#embed "sfx/damage.ogg"
-};
-
-const unsigned char sfx_sa1[]={ //step A 1
-#embed "sfx/sa1.ogg"
-};
-const unsigned char sfx_sa2[]={ //step A 2
-#embed "sfx/sa2.ogg"
-};
-const unsigned char sfx_sa3[]={ //step A 3
-#embed "sfx/sa3.ogg"
-};
-const unsigned char sfx_sa4[]={ //step A 4
-#embed "sfx/sa4.ogg"
-};
-const unsigned char sfx_sa5[]={ //step A 5
-#embed "sfx/sa5.ogg"
-};
-
-//music
-const unsigned char hub_bgm[]={
-#embed "music/hub world.ogg"
-};
-const unsigned char hub_bgmA[]={
-#embed "music/hub world (air).ogg"
-};
-const unsigned char hub_bgmW[]={
-#embed "music/hub-world (water).ogg"
-};
-const unsigned char hub_bgmC[]={
-#embed "music/hub world (cool).ogg"
-};
-const unsigned char hub_bgmP[]={
-#embed "music/hub world (paused).ogg"
-};
-const unsigned char title_bgm[]={
-#embed "music/title.ogg"
-};
-const unsigned char tutorial_bgm[]={
-#embed "music/enjoy your stay.ogg"
-};
-const unsigned char tutorial_bgmP[]={
-#embed "music/enjoy your stay (paused).ogg"
-};
-const unsigned char turtle_bgm[]={
-#embed "music/snippy dippy.ogg"
-};
-const unsigned char turtle_bgmA[]={
-#embed "music/snippy dippy (air).ogg"
-};
-const unsigned char turtle_bgmW[]={
-#embed "music/snippy dippy (water).ogg"
-};
-const unsigned char turtle_bgmP[]={
-#embed "music/snippy dippy paused.ogg"
-};
-//textures
-const unsigned char tex_padding[]={
-#embed "textures/padding.png"
-};
-const unsigned char tex_grass[]={ //texture 0
-#embed "textures/grass.png"
-};
-const unsigned char tex_cliff[]={ //texture 1
-#embed "textures/cliff.png"
-};
-const unsigned char tex_logo[]={ //texture 2
-#embed "textures/logocolors.png"
-};
-const unsigned char tex_path[]={ //texture 3
-#embed "textures/path.png"
-};
-const unsigned char tex_sand[]={ //texture 4
-#embed "textures/sand.png"
-};
-const unsigned char img_spinny[]={
-#embed "textures/spinny.png"
-};
-const unsigned char img_trs[]={
-#embed "textures/trs.png"
-};
-const unsigned char img_cur[]={
-#embed "textures/cursor.png"
-};
-const unsigned char img_inv[]={
-#embed "textures/invui.png"
-};
-const unsigned char tex_sky_default[]={
-#embed "skybox/default.png"
-};
-const unsigned char tex_sky_title[]={
-#embed "skybox/title.png"
-};
-const unsigned char tex_skin1[]={
-#embed "textures/beebo/1.png"
-};
-const unsigned char tex_face1[]={
-#embed "textures/beebo/face1.png"
-};
-const unsigned char tex_face2[]={
-#embed "textures/beebo/face2.png"
-};
-const unsigned char tex_face3[]={
-#embed "textures/beebo/face3.png"
-};
-const unsigned char tex_face4[]={
-#embed "textures/beebo/face4.png"
-};
-const unsigned char tex_face5[]={
-#embed "textures/beebo/face5.png"
-};
-const unsigned char tex_candt[]={
-#embed "textures/candy.png"
-};
-//const unsigned char tex_plain[]={
-//#embed "textures/plain.png"
-//};
-const unsigned char tex_sparkle[]={
-#embed "textures/sparkle.png"
-};
-const unsigned char img_startup[]={
-#embed "textures/startup.png"
-};
-const unsigned char tex_hubout[]={ //texture 5
-#embed "textures/hubout.png"
-};
-const unsigned char tex_hubcloudfloor[]={ //texture 6
-#embed "textures/hubcloudfloor.png"
-};
-const unsigned char tex_hubwood[]={ //texture 7
-#embed "textures/hubwood.png"
-};
-const unsigned char tex_hubshop[]={ //texture 8
-#embed "textures/hubshop.png"
-};
-const unsigned char tex_hubrusty[]={ //texture 9
-#embed "textures/hubrusty.png"
-};
-const unsigned char tex_hubokwall[]={ //texture 10
-#embed "textures/hubokwall.png"
-};
-const unsigned char tex_cork[]={
-#embed "textures/cork.png"
-};
-const unsigned char tex_hubgoodfloor[]={ //texture 11
-#embed "textures/hubgoodfloor.png"
-};
-const unsigned char tex_hubstairs[]={ //texture 12
-#embed "textures/hubstairs.png"
-};
-const unsigned char tex_hubcarpet[]={ //texture 13
-#embed "textures/hubcarpet.png"
-};
-const unsigned char tex_hubbookwall[]={ //texture 14
-#embed "textures/hubbookwall.png"
-};
-const unsigned char tex_hubstarryfloor[]={ //texture 15
-#embed "textures/hubstarryfloor.png"
-};
-const unsigned char tex_hubstars[]={ //texture 16
-#embed "textures/hubstars.png"
-};
-const unsigned char img_icedicon[]={
-#embed "textures/icedicon.png"
-};
-const unsigned char img_candicon[]={
-#embed "textures/candicon.png"
-};
-const unsigned char tex_turtlegrass[]={ //texture 17
-#embed "textures/turtlegrass.png"
-};
-const unsigned char tex_wall[]={ //texture 18
-#embed "textures/wall.png"
-};
-const unsigned char tex_turtlebody[]={ //texture 19
-#embed "textures/turtlebody.png"
-};
-const unsigned char tex_icedcream[]={
-#embed "textures/icedcream.png"
-};
-const unsigned char tex_water[]={
-#embed "textures/water.png"
-};
-const unsigned char tex_sun[]={
-#embed "textures/sun.png"
-};
-const unsigned char tex_sky_hub[]={
-#embed "skybox/hub.png"
-};
-const unsigned char img_frame[]={
-#embed "textures/frame.png"
-};
-const unsigned char tex_title[]={ //texture 20
-#embed "textures/title.png"
-};
-const unsigned char tex_jetpack[]={
-#embed "textures/beebo/jetpack.png"
-};
-const unsigned char img_3dUI[]={
-#embed "textures/3dUI.png"
-};
-const unsigned char img_stick2[]={
-#embed "textures/stick2.png"
-};
-const unsigned char tex_sky_turtle[]={
-#embed "skybox/turtle.png"
-};
-const unsigned char tex_icedoor[]={
-#embed "textures/lock2.png"
-};
-const unsigned char img_slider[]={
-#embed "textures/arrowthing.png"
-};
-const unsigned char img_3dUIB[]={
-#embed "textures/3dUIB.png"
-};
-const unsigned char tex_givebox[]={
-#embed "textures/givebox.png"
-};
-const unsigned char tex_board[]={
-#embed "textures/beebo/board.png"
-};
-const unsigned char tex_battery[]={
-#embed "textures/beebo/bt.png"
-};
 #define NUM_TEX 21
 typedef struct {
     Texture2D items[NUM_TEX];
     bool loaded[NUM_TEX];
 } LvlTexList;
 LvlTexList levtexs = {0}; //idk when im gonna use this (probably not cuz json maps are in progress)
-const unsigned char *texlist[] = {tex_grass,
-                                tex_cliff,
-                                tex_logo,
-                                tex_path,
-                                tex_sand,
-                                tex_hubout,
-                                tex_hubcloudfloor,
-                                tex_hubwood,
-                                tex_hubshop,
-                                tex_hubrusty,
-                                tex_hubokwall,
-                                tex_hubgoodfloor,
-                                tex_hubstairs,
-                                tex_hubcarpet,
-                                tex_hubbookwall,
-                                tex_hubstarryfloor,
-                                tex_hubstars,
-                                tex_turtlegrass,
-                                tex_wall,
-                                tex_turtlebody,
-                                tex_title
-                                };
-const int texsize[] = {sizeof(tex_grass),
-                    sizeof(tex_cliff),
-                    sizeof(tex_logo),
-                    sizeof(tex_path),
-                    sizeof(tex_sand),
-                    sizeof(tex_hubout),
-                    sizeof(tex_hubcloudfloor),
-                    sizeof(tex_hubwood),
-                    sizeof(tex_hubshop),
-                    sizeof(tex_hubrusty),
-                    sizeof(tex_hubokwall),
-                    sizeof(tex_hubgoodfloor),
-                    sizeof(tex_hubstairs),
-                    sizeof(tex_hubcarpet),
-                    sizeof(tex_hubbookwall),
-                    sizeof(tex_hubstarryfloor),
-                    sizeof(tex_hubstars),
-                    sizeof(tex_turtlegrass),
-                    sizeof(tex_wall),
-                    sizeof(tex_turtlebody),
-                    sizeof(tex_title)
-                    };
-const unsigned char *skinlist[] = {tex_skin1};
-const int skinsize[] = {sizeof(tex_skin1)};
-//models (must be glb)
-const unsigned char hub_meshgrass[]={ //model 0
-#embed "models/hub/grass.glb"
-};
-const unsigned char hub_meshcliff[]={ //model 1
-#embed "models/hub/cliff.glb"
-};
-const unsigned char title_meshlogo[]={ //model 2
-#embed "models/title/logo.glb"
-};
-const unsigned char hub_meshpath[]={ //model 3
-#embed "models/hub/path.glb"
-};
-const unsigned char hub_meshsand[]={ //model 4
-#embed "models/hub/sand.glb"
-};
-const unsigned char beeb_torso[]={ //model 5 (not terrain)
-#embed "models/beebo/torso.glb"
-};
-const unsigned char beeb_head[]={ //model 6 (not terrain)
-#embed "models/beebo/head.glb"
-};
-const unsigned char beeb_face[]={ //model 7 (not terrain)
-#embed "models/beebo/face.glb"
-};
-const unsigned char beeb_leg[]={ //model 8 (not terrain)
-#embed "models/beebo/leg.glb"
-};
-const unsigned char beeb_tarm[]={ //model 9 (not terrain)
-#embed "models/beebo/toparm.glb"
-};
-const unsigned char beeb_barm[]={ //model 10 (not terrain)
-#embed "models/beebo/botarm.glb"
-};
-const unsigned char beeb_dot[]={ //model 11 (not terrain)
-#embed "models/beebo/dot.glb"
-};
-const unsigned char misc_candy[]={ //model 12 (not terrain)
-#embed "models/candy.glb"
-};
-const unsigned char hub_meshhubout[]={ //model 13
-#embed "models/hub/hubout.glb"
-};
-const unsigned char hub_meshhubbottom[]={ //model 14
-#embed "models/hub/hubbottom.glb"
-};
-const unsigned char hub_meshhubcloudfloor[]={ //model 15
-#embed "models/hub/hubcloudfloor.glb"
-};
-const unsigned char hub_meshhubwood[]={ //model 16
-#embed "models/hub/hubwood.glb"
-};
-const unsigned char hub_meshhubshop[]={ //model 17
-#embed "models/hub/hubshop.glb"
-};
-const unsigned char hub_meshhubrusty[]={ //model 18
-#embed "models/hub/hubrusty.glb"
-};
-const unsigned char hub_meshhubokwall[]={ //model 19
-#embed "models/hub/hubokwall.glb"
-};
-const unsigned char hub_meshhubgoodfloor[]={ //model 20
-#embed "models/hub/hubgoodfloor.glb"
-};
-const unsigned char hub_meshhubstairs[]={ //model 21
-#embed "models/hub/hubstairs.glb"
-};
-const unsigned char hub_meshhubcarpet[]={ //model 22
-#embed "models/hub/hubcarpet.glb"
-};
-const unsigned char hub_meshhubbookwall[]={ //model 23
-#embed "models/hub/hubbookwall.glb"
-};
-const unsigned char hub_meshhubstarryfloor[]={ //model 24
-#embed "models/hub/hubstarryfloor.glb"
-};
-const unsigned char hub_meshhubstars[]={ //model 25
-#embed "models/hub/hubstars.glb"
-};
-const unsigned char turtle_meshgrass[]={ //model 26
-#embed "models/turtle/grass.glb"
-};
-const unsigned char turtle_meshwall[]={ //model 27
-#embed "models/turtle/wall.glb"
-};
-const unsigned char turtle_meshpath[]={ //model 28
-#embed "models/turtle/path.glb"
-};
-const unsigned char turtle_meshsand[]={ //model 29
-#embed "models/turtle/sand.glb"
-};
-const unsigned char turtle_meshturtlebody[]={ //model 30
-#embed "models/turtle/turtlebody.glb"
-};
-const unsigned char misc_cloud[]={ //model 31 (not terrain)
-#embed "models/cloud.glb"
-};
-const unsigned char misc_icedcream[]={ //model 32 (not terrain)
-#embed "models/icedcream.glb"
-};
-const unsigned char beeb_hat1[]={ //model 33 (not terrain)
-#embed "models/beebo/hats/hat1.glb"
-};
-const unsigned char title_meshbeam[]={ //model 34
-#embed "models/title/beam.glb"
-};
-const unsigned char beeb_jetpack[]={ //model 35 (not terrain)
-#embed "models/beebo/jetpack.glb"
-};
-const unsigned char beeb_booster[]={ //model 36 (not terrain)
-#embed "models/beebo/booster.glb"
-};
-const unsigned char beeb_pack[]={ //model 37 (not terrain)
-#embed "models/beebo/pack.glb"
-};
-const unsigned char misc_givebox[]={ //model 38 (not terrain)
-#embed "models/givebox.glb"
-};
-const unsigned char beeb_board[]={ //model 39 (not terrain)
-#embed "models/beebo/board.glb"
-};
-const unsigned char beeb_wheel[]={ //model 40 (not terrain)
-#embed "models/beebo/w.glb"
-};
-const unsigned char beeb_battery[]={ //model 41 (not terrain)
-#embed "models/beebo/bt.glb"
-};
-const unsigned char *glblist[] = {hub_meshgrass,
-                                hub_meshcliff,
-                                title_meshlogo,
-                                hub_meshpath,
-                                hub_meshsand,
-                                beeb_torso,
-                                beeb_head,
-                                beeb_face,
-                                beeb_leg,
-                                beeb_tarm,
-                                beeb_barm,
-                                beeb_dot,
-                                misc_candy,
-                                hub_meshhubout,
-                                hub_meshhubbottom,
-                                hub_meshhubcloudfloor,
-                                hub_meshhubwood,
-                                hub_meshhubshop,
-                                hub_meshhubrusty,
-                                hub_meshhubokwall,
-                                hub_meshhubgoodfloor,
-                                hub_meshhubstairs,
-                                hub_meshhubcarpet,
-                                hub_meshhubbookwall,
-                                hub_meshhubstarryfloor,
-                                hub_meshhubstars,
-                                turtle_meshgrass,
-                                turtle_meshwall,
-                                turtle_meshpath,
-                                turtle_meshsand,
-                                turtle_meshturtlebody,
-                                misc_cloud,
-                                misc_icedcream,
-                                beeb_hat1,
-                                title_meshbeam,
-                                beeb_jetpack,
-                                beeb_booster,
-                                beeb_pack,
-                                misc_givebox,
-                                beeb_board,
-                                beeb_wheel,
-                                beeb_battery
-                                };
-const int glbsize[] = {sizeof(hub_meshgrass),
-                    sizeof(hub_meshcliff),
-                    sizeof(title_meshlogo),
-                    sizeof(hub_meshpath),
-                    sizeof(hub_meshsand),
-                    sizeof(beeb_torso),
-                    sizeof(beeb_head),
-                    sizeof(beeb_face),
-                    sizeof(beeb_leg),
-                    sizeof(beeb_tarm),
-                    sizeof(beeb_barm),
-                    sizeof(beeb_dot),
-                    sizeof(misc_candy),
-                    sizeof(hub_meshhubout),
-                    sizeof(hub_meshhubbottom),
-                    sizeof(hub_meshhubcloudfloor),
-                    sizeof(hub_meshhubwood),
-                    sizeof(hub_meshhubshop),
-                    sizeof(hub_meshhubrusty),
-                    sizeof(hub_meshhubokwall),
-                    sizeof(hub_meshhubgoodfloor),
-                    sizeof(hub_meshhubstairs),
-                    sizeof(hub_meshhubcarpet),
-                    sizeof(hub_meshhubbookwall),
-                    sizeof(hub_meshhubstarryfloor),
-                    sizeof(hub_meshhubstars),
-                    sizeof(turtle_meshgrass),
-                    sizeof(turtle_meshwall),
-                    sizeof(turtle_meshpath),
-                    sizeof(turtle_meshsand),
-                    sizeof(turtle_meshturtlebody),
-                    sizeof(misc_cloud),
-                    sizeof(misc_icedcream),
-                    sizeof(beeb_hat1),
-                    sizeof(title_meshbeam),
-                    sizeof(beeb_jetpack),
-                    sizeof(beeb_booster),
-                    sizeof(beeb_pack),
-                    sizeof(misc_givebox),
-                    sizeof(beeb_board),
-                    sizeof(beeb_wheel),
-                    sizeof(beeb_battery)
-                    };
+Image texlist[32];
+Image skylist[32];
+Image skinlist[1];
 
-const unsigned char *filepointer;
-int filepointersize;
+// cant load images in constant space
+void loadimglists() {
+    texlist[0] = LoadImage("textures/grass.png");
+    texlist[1] = LoadImage("textures/cliff.png");
+    texlist[2] = LoadImage("textures/logocolors.png");
+    texlist[3] = LoadImage("textures/path.png");
+    texlist[4] = LoadImage("textures/sand.png");
+    texlist[5] = LoadImage("textures/hubout.png");
+    texlist[6] = LoadImage("textures/hubcloudfloor.png");
+    texlist[7] = LoadImage("textures/hubwood.png");
+    texlist[8] = LoadImage("textures/hubshop.png");
+    texlist[9] = LoadImage("textures/hubrusty.png");
+    texlist[10] = LoadImage("textures/hubokwall.png");
+    texlist[11] = LoadImage("textures/hubgoodfloor.png");
+    texlist[12] = LoadImage("textures/hubstairs.png");
+    texlist[13] = LoadImage("textures/hubcarpet.png");
+    texlist[14] = LoadImage("textures/hubbookwall.png");
+    texlist[15] = LoadImage("textures/hubstarryfloor.png");
+    texlist[16] = LoadImage("textures/hubstars.png");
+    texlist[17] = LoadImage("textures/turtlegrass.png");
+    texlist[18] = LoadImage("textures/wall.png");
+    texlist[19] = LoadImage("textures/turtlebody.png");
+    texlist[20] = LoadImage("textures/title.png");
+    texlist[21] = LoadImage("textures/padding.png");
+
+    skylist[0] = LoadImage("skybox/title.png");
+    skylist[1] = LoadImage("skybox/hub.png");
+    skylist[2] = LoadImage("skybox/default.png");
+    skylist[3] = LoadImage("skybox/turtle.png");
+
+    skinlist[0] = LoadImage("textures/beebo/1.png");
+}
+
+void unloadimglists() {
+    for (int i = 0; i < 32; i++)
+        if (IsImageValid(texlist[i]))
+            UnloadImage(texlist[i]);
+    for (int i = 0; i < 32; i++)
+        if (IsImageValid(skylist[i]))
+            UnloadImage(skylist[i]);
+    for (int i = 0; i < 1; i++)
+        if (IsImageValid(skinlist[i]))
+            UnloadImage(skinlist[i]);
+}
+
+char* glblist[128];
+
+// so i have to replace LESS funny stuff of all your stuffs because i HATE doing all of that and yo uKNOW IT 
+void loadglblist() {
+    glblist[0] = "models/hub/grass.glb";
+    glblist[1] = "models/hub/cliff.glb";
+    glblist[2] = "models/title/logo.glb";
+    glblist[3] = "models/hub/path.glb";
+    glblist[4] = "models/hub/sand.glb";
+    glblist[5] = "models/beebo/torso.glb";
+    glblist[6] = "models/beebo/head.glb";
+    glblist[7] = "models/beebo/face.glb";
+    glblist[8] = "models/beebo/leg.glb";
+    glblist[9] = "models/beebo/toparm.glb";
+    glblist[10] = "models/beebo/botarm.glb";
+    glblist[11] = "models/beebo/dot.glb";
+    glblist[12] = "models/candy.glb";
+    glblist[13] = "models/hub/hubout.glb";
+    glblist[14] = "models/hub/hubbottom.glb";
+    glblist[15] = "models/hub/hubcloudfloor.glb";
+    glblist[16] = "models/hub/hubwood.glb";
+    glblist[17] = "models/hub/hubshop.glb";
+    glblist[18] = "models/hub/hubrusty.glb";
+    glblist[19] = "models/hub/hubokwall.glb";
+    glblist[20] = "models/hub/hubgoodfloor.glb";
+    glblist[21] = "models/hub/hubstairs.glb";
+    glblist[22] = "models/hub/hubcarpet.glb";
+    glblist[23] = "models/hub/hubbookwall.glb";
+    glblist[24] = "models/hub/hubstarryfloor.glb";
+    glblist[25] = "models/hub/hubstars.glb";
+    glblist[26] = "models/turtle/grass.glb";
+    glblist[27] = "models/turtle/wall.glb";
+    glblist[28] = "models/turtle/path.glb";
+    glblist[29] = "models/turtle/sand.glb";
+    glblist[30] = "models/turtle/turtlebody.glb";
+    glblist[31] = "models/cloud.glb";
+    glblist[32] = "models/icedcream.glb";
+    glblist[33] = "models/beebo/hats/hat1.glb";
+    glblist[34] = "models/title/beam.glb";
+    glblist[35] = "models/beebo/jetpack.glb";
+    glblist[36] = "models/beebo/booster.glb";
+    glblist[37] = "models/beebo/pack.glb";
+    glblist[38] = "models/givebox.glb";
+    glblist[39] = "models/beebo/board.glb";
+    glblist[40] = "models/beebo/w.glb";
+    glblist[41] = "models/beebo/bt.glb";
+}
+
+//const unsigned char *filepointer;
+//int filepointersize;
 unsigned char* readmodel(const char* fileName, int* dataSize){
-	*dataSize = filepointersize;
-	unsigned char* mem = MemAlloc(filepointersize);
+    *dataSize = 10000;
+	char *filepointer = LoadFileData(fileName, dataSize);
+	unsigned char* mem = MemAlloc(10000);
 	memcpy(mem, filepointer, *dataSize);
 	return mem;
 }
 void prepmodel(const unsigned char* model, int sz){
-	filepointer = model;
-	filepointersize = sz;
+	//filepointer = model;
+	//filepointersize = sz;
 	SetLoadFileDataCallback(readmodel);
 }
 //shaders
@@ -1115,13 +670,12 @@ void compileassets(){
                 SetTextureFilter(gm3d.items[i].mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture,TEXTURE_FILTER_BILINEAR);
             }
         }else{
-            Image img = LoadImageFromMemory(".png",texlist[gm3d.items[i].tex],texsize[gm3d.items[i].tex]);
-            Texture2D t = LoadTextureFromImage(img);
+            Texture2D t = LoadTextureFromImage(texlist[gm3d.items[i].tex]);
             SetTextureWrap(t,TEXTURE_WRAP_REPEAT);
-            prepmodel(glblist[gm3d.items[i].model],glbsize[gm3d.items[i].model]);
-            Model m = LoadModel("tuffness.glb");
+            //prepmodel(glblist[gm3d.items[i].model],glbsize[gm3d.items[i].model]);
+            //SetLoadFileDataCallback(readmodel);
+            Model m = LoadModel(glblist[gm3d.items[i].model]);
             SetLoadFileDataCallback(NULL);
-            UnloadImage(img);
             m.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t;
             if(!gm3d.items[i].glow){
                 m.materials[1].shader = shader;
@@ -1392,10 +946,8 @@ void map_title(){
     titleselt = 0;
     map = M_TITLE;
     usechar = false;
-	Image img = LoadImageFromMemory(".png",tex_sky_title,sizeof(tex_sky_title));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",title_bgm,sizeof(title_bgm));
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(skylist[0], CUBEMAP_LAYOUT_AUTO_DETECT);
+    bgm = LoadMusicStream("music/title.ogg");
 	bgm.looping = true;
     canbgmA=false;
     canbgmC=false;
@@ -1423,14 +975,12 @@ void map_hub(){
     iswallrad=true;wallrad=512;
     unloadassets();
     map = M_HUB;
-	Image img = LoadImageFromMemory(".png",tex_sky_hub,sizeof(tex_sky_hub));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",hub_bgm,sizeof(hub_bgm));bgm.looping = true;PlayMusicStream(bgm);
-    bgmA = LoadMusicStreamFromMemory(".ogg",hub_bgmA,sizeof(hub_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
-    bgmW = LoadMusicStreamFromMemory(".ogg",hub_bgmW,sizeof(hub_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
-    bgmC = LoadMusicStreamFromMemory(".ogg",hub_bgmC,sizeof(hub_bgmC));bgmC.looping = true;PlayMusicStream(bgmC);canbgmC=true;
-    bgmP = LoadMusicStreamFromMemory(".ogg",hub_bgmP,sizeof(hub_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(skylist[1], CUBEMAP_LAYOUT_AUTO_DETECT);;
+    bgm = LoadMusicStream("music/hub world.ogg");bgm.looping = true;PlayMusicStream(bgm);
+    bgmA = LoadMusicStream("music/hub world (air).ogg");bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
+    bgmW = LoadMusicStream("music/hub world (water).ogg");bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
+    bgmC = LoadMusicStream("music/hub world (cool).ogg");bgmC.looping = true;PlayMusicStream(bgmC);canbgmC=true;
+    bgmP = LoadMusicStream("music/hub world (paused).ogg");bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
     gm3dlist newg;
     int i=0;
     Terrain tmp = {0}; //hub grass
@@ -1525,10 +1075,8 @@ void map_hub(){
     newg.items[i] = tmp;i++;
     
     //tutorial pads
-    img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
-    Texture2D pad = LoadTextureFromImage(img);
+    Texture2D pad = LoadTextureFromImage(texlist[21]);
     SetTextureWrap(pad,TEXTURE_WRAP_REPEAT);
-    UnloadImage(img);
     tmp = (Terrain){0};tmp.x = -12;tmp.y = 37.45;tmp.z = -52;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
     8,16,16,8));tmp.mdl.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = pad;tmp.gen = true;newg.items[i] = tmp;i++;
     tmp = (Terrain){0};tmp.x = 20;tmp.y = 37.45;tmp.z = -52;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
@@ -1593,17 +1141,13 @@ void map_tutorial(){
     iswallrad=false;
     unloadassets();
     map = M_TUTORIAL;
-	Image img = LoadImageFromMemory(".png",tex_sky_default,sizeof(tex_sky_default));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",tutorial_bgm,sizeof(tutorial_bgm));bgm.looping = true;PlayMusicStream(bgm);
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(skylist[2], CUBEMAP_LAYOUT_AUTO_DETECT);
+    bgm = LoadMusicStream("music/enjoy your stay.ogg");bgm.looping = true;PlayMusicStream(bgm);
     canbgmA=false;
     canbgmW=false;
-    bgmP = LoadMusicStreamFromMemory(".ogg",tutorial_bgmP,sizeof(tutorial_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
-    img = LoadImageFromMemory(".png",tex_padding,sizeof(tex_padding));
-    Texture2D pad = LoadTextureFromImage(img);
+    bgmP = LoadMusicStream("music/enjoy your stay (paused).ogg");bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
+    Texture2D pad = LoadTextureFromImage(texlist[21]);
     SetTextureWrap(pad,TEXTURE_WRAP_REPEAT);
-    UnloadImage(img);
     gm3dlist newg;
     int i = 0;                                                  //this is just horrible
     Terrain tmp = {0};tmp.x = 0;tmp.y = -28;tmp.z = 28;tmp.s = 1;tmp.mdl=LoadModelFromMesh(GenMeshCubeT(
@@ -1752,13 +1296,11 @@ void map_turtle(){
     iswallrad=true;wallrad=516;
     unloadassets();
     map = M_TURTLE;
-	Image img = LoadImageFromMemory(".png",tex_sky_turtle,sizeof(tex_sky_turtle));
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
-    UnloadImage(img);
-    bgm = LoadMusicStreamFromMemory(".ogg",turtle_bgm,sizeof(turtle_bgm));bgm.looping = true;PlayMusicStream(bgm);
-    bgmA = LoadMusicStreamFromMemory(".ogg",turtle_bgmA,sizeof(turtle_bgmA));bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
-    bgmW = LoadMusicStreamFromMemory(".ogg",turtle_bgmW,sizeof(turtle_bgmW));bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
-    bgmP = LoadMusicStreamFromMemory(".ogg",turtle_bgmP,sizeof(turtle_bgmP));bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(skylist[3], CUBEMAP_LAYOUT_AUTO_DETECT);
+    bgm = LoadMusicStream("music/snippy dippy.ogg");bgm.looping = true;PlayMusicStream(bgm);
+    bgmA = LoadMusicStream("music/snippy dippy (air).ogg");bgmA.looping = true;PlayMusicStream(bgmA);canbgmA=true;
+    bgmW = LoadMusicStream("music/snippy dippy (water).ogg");bgmW.looping = true;PlayMusicStream(bgmW);canbgmW=true;
+    bgmP = LoadMusicStream("music/snippy dippy paused.ogg");bgmP.looping = true;PlayMusicStream(bgmP);canbgmP=true;
     gm3dlist newg;
     int i = 0;
     Terrain tmp = {0}; //turtle grass
@@ -2044,10 +1586,8 @@ scuffedrays scuffedcol(Vector3 pos, float radius, Vector3 only, bool full) {
 }
 
 void loadskin(uint8_t id){
-    Image img = LoadImageFromMemory(".png",skinlist[id-1],skinsize[id-1]);
-    curskin = LoadTextureFromImage(img);
+    curskin = LoadTextureFromImage(skinlist[id-1]);
     SetTextureFilter(curskin,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
 }
 
 Vector3 v2(Vector3 v){
@@ -3888,11 +3428,9 @@ int main(){
     rlEnableDepthTest();
     BeginDrawing();
     ClearBackground(BLACK);
-    Image img = LoadImageFromMemory(".png",img_startup,sizeof(img_startup));
-    Texture2D startuptex = LoadTextureFromImage(img);
+    Texture2D startuptex = LoadTexture("textures/startup.png");
     DrawTexture(startuptex,339,210,WHITE);
     EndDrawing();
-    UnloadImage(img);
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 #if defined(PLATFORM_WEB)
     MaximizeWindow();
@@ -3906,169 +3444,73 @@ int main(){
     SetTextureFilter(r64font.texture,TEXTURE_FILTER_BILINEAR);
     
     //load textures
-	img = LoadImageFromMemory(".png",img_spinny,sizeof(img_spinny));
-    spinny = LoadTextureFromImage(img);SetTextureFilter(spinny,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_trs,sizeof(img_trs));
-    trstex = LoadTextureFromImage(img);SetTextureFilter(trstex,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_cur,sizeof(img_cur));
-    curstx = LoadTextureFromImage(img);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_inv,sizeof(img_inv));
-    invtex = LoadTextureFromImage(img);SetTextureFilter(invtex,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_candt,sizeof(tex_candt));
-    ml_candy_tex = LoadTextureFromImage(img);SetTextureFilter(ml_candy_tex,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    //img = LoadImageFromMemory(".png",tex_plain,sizeof(tex_plain));
-    //t_plain = LoadTextureFromImage(img);
-    //UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_sparkle,sizeof(tex_sparkle));
-    t_sparkle = LoadTextureFromImage(img);SetTextureFilter(t_sparkle,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_cork,sizeof(tex_cork));
-    t_cork = LoadTextureFromImage(img);SetTextureFilter(t_cork,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_icedicon,sizeof(img_icedicon));
-    icedicon = LoadTextureFromImage(img);SetTextureFilter(icedicon,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_candicon,sizeof(img_candicon));
-    candicon = LoadTextureFromImage(img);SetTextureFilter(candicon,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_icedcream,sizeof(tex_icedcream));
-    ml_icedcream_tex = LoadTextureFromImage(img);SetTextureFilter(ml_icedcream_tex,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_water,sizeof(tex_water));
-    t_water = LoadTextureFromImage(img);
+    spinny = LoadTexture("textures/spinny.png");SetTextureFilter(spinny,TEXTURE_FILTER_BILINEAR);
+    trstex = LoadTexture("textures/trs.png");SetTextureFilter(trstex,TEXTURE_FILTER_BILINEAR);
+    curstx = LoadTexture("textures/cursor.png");
+    invtex = LoadTexture("textures/invui.png");SetTextureFilter(invtex,TEXTURE_FILTER_BILINEAR);
+    ml_candy_tex = LoadTexture("textures/candy.png");SetTextureFilter(ml_candy_tex,TEXTURE_FILTER_BILINEAR);
+    //t_plain = LoadTexture(img);
+    t_sparkle = LoadTexture("textures/sparkle.png");SetTextureFilter(t_sparkle,TEXTURE_FILTER_BILINEAR);
+    t_cork = LoadTexture("textures/cork.png");SetTextureFilter(t_cork,TEXTURE_FILTER_BILINEAR);
+    icedicon = LoadTexture("textures/icedicon.png");SetTextureFilter(icedicon,TEXTURE_FILTER_BILINEAR);
+    candicon = LoadTexture("textures/candicon.png");SetTextureFilter(candicon,TEXTURE_FILTER_BILINEAR);
+    ml_icedcream_tex = LoadTexture("textures/icedcream.png");SetTextureFilter(ml_icedcream_tex,TEXTURE_FILTER_BILINEAR);
+    t_water = LoadTexture("textures/water.png");
     SetTextureWrap(t_water,TEXTURE_WRAP_REPEAT);SetTextureFilter(t_water,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_sun,sizeof(tex_sun));
-    t_sun = LoadTextureFromImage(img);SetTextureFilter(t_sun,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_frame,sizeof(img_frame));
-    t_frame = LoadTextureFromImage(img);SetTextureFilter(t_frame,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_3dUI,sizeof(img_3dUI));
-    t_3dUI = LoadTextureFromImage(img);SetTextureFilter(t_3dUI,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_3dUIB,sizeof(img_3dUIB));
-    t_3dUIB = LoadTextureFromImage(img);SetTextureFilter(t_3dUIB,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_stick2,sizeof(img_stick2));
-    t_stick2 = LoadTextureFromImage(img);SetTextureFilter(t_stick2,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_icedoor,sizeof(tex_icedoor));
-    t_icedoor = LoadTextureFromImage(img);
+    t_sun = LoadTexture("textures/sun.png");SetTextureFilter(t_sun,TEXTURE_FILTER_BILINEAR);
+    t_frame = LoadTexture("textures/frame.png");SetTextureFilter(t_frame,TEXTURE_FILTER_BILINEAR);
+    t_3dUI = LoadTexture("textures/3dUI.png");SetTextureFilter(t_3dUI,TEXTURE_FILTER_BILINEAR);
+    t_3dUIB = LoadTexture("textures/3dUIB.png");SetTextureFilter(t_3dUIB,TEXTURE_FILTER_BILINEAR);
+    t_stick2 = LoadTexture("textures/stick2.png");SetTextureFilter(t_stick2,TEXTURE_FILTER_BILINEAR);
+    t_icedoor = LoadTexture("textures/lock.png");
     SetTextureWrap(t_icedoor,TEXTURE_WRAP_REPEAT);SetTextureFilter(t_icedoor,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",img_slider,sizeof(img_slider));
-    t_slider = LoadTextureFromImage(img);SetTextureFilter(t_slider,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_givebox,sizeof(tex_givebox));
-    t_givebox = LoadTextureFromImage(img);SetTextureFilter(t_givebox,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
+    t_slider = LoadTexture("textures/arrowthing.png");SetTextureFilter(t_slider,TEXTURE_FILTER_BILINEAR);
+    t_givebox = LoadTexture("textures/givebox.png");SetTextureFilter(t_givebox,TEXTURE_FILTER_BILINEAR);
+
+    loadimglists();
     
     loadskin(plrskin);
-    img = LoadImageFromMemory(".png",tex_jetpack,sizeof(tex_jetpack));
-    t_jetpack = LoadTextureFromImage(img);SetTextureFilter(t_jetpack,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_board,sizeof(tex_board));
-    t_board = LoadTextureFromImage(img);SetTextureFilter(t_board,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_battery,sizeof(tex_battery));
-    t_battery = LoadTextureFromImage(img);SetTextureFilter(t_battery,TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
+    t_jetpack = LoadTexture("textures/beebo/jetpack.png");SetTextureFilter(t_jetpack,TEXTURE_FILTER_BILINEAR);
+    t_board = LoadTexture("textures/beebo/board.png");SetTextureFilter(t_board,TEXTURE_FILTER_BILINEAR);
+    t_battery = LoadTexture("textures/beebo/bt.png");SetTextureFilter(t_battery,TEXTURE_FILTER_BILINEAR);
     
-    img = LoadImageFromMemory(".png",tex_face1,sizeof(tex_face1));
-    bt_faces[0] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[0],TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_face2,sizeof(tex_face2));
-    bt_faces[1] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[1],TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_face3,sizeof(tex_face3));
-    bt_faces[2] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[2],TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_face4,sizeof(tex_face4));
-    bt_faces[3] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[3],TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
-    img = LoadImageFromMemory(".png",tex_face5,sizeof(tex_face5));
-    bt_faces[4] = LoadTextureFromImage(img);SetTextureFilter(bt_faces[4],TEXTURE_FILTER_BILINEAR);
-    UnloadImage(img);
+    for (int i = 0; i < 5; i++) {
+        char tex_path[] = "textures/beebo/face1.png";
+        tex_path[19] = (i+1) % 10 + '0';
+        printf("%s \n", tex_path);
+        bt_faces[i] = LoadTexture(tex_path);
+        SetTextureFilter(bt_faces[i],TEXTURE_FILTER_BILINEAR);
+    }
     
     //load sounds
-    Wave wav = LoadWaveFromMemory(".ogg",sfx_loadto,sizeof(sfx_loadto));
-    s_load1 = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_loadfr,sizeof(sfx_loadfr));
-    s_load2 = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_jump,sizeof(sfx_jump));
-    s_jump = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_djump,sizeof(sfx_djump));
-    s_djump = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_dive,sizeof(sfx_dive));
-    s_dive = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_jump2,sizeof(sfx_jump2));
-    s_jump2 = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_land,sizeof(sfx_land));
-    s_land = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_smack,sizeof(sfx_smack));
-    s_smack = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_spin,sizeof(sfx_spin));
-    s_spin = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_flip,sizeof(sfx_flip));
-    s_flip = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_candy,sizeof(sfx_candy));
-    s_candy = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_break,sizeof(sfx_break));
-    s_break = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_gotice,sizeof(sfx_gotice));
-    s_gotice = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_pole,sizeof(sfx_pole));
-    s_pole = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_icedoor,sizeof(sfx_icedoor));
-    s_icedoor = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_cancel,sizeof(sfx_cancel));
-    s_cancel = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_powerup,sizeof(sfx_powerup));
-    s_powerup = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_damage,sizeof(sfx_damage));
-    s_damage = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    
-    wav = LoadWaveFromMemory(".ogg",sfx_sa1,sizeof(sfx_sa1));
-    stepsA[0] = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_sa2,sizeof(sfx_sa2));
-    stepsA[1] = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_sa3,sizeof(sfx_sa3));
-    stepsA[2] = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_sa4,sizeof(sfx_sa4));
-    stepsA[3] = LoadSoundFromWave(wav);
-    UnloadWave(wav);
-    wav = LoadWaveFromMemory(".ogg",sfx_sa5,sizeof(sfx_sa5));
-    stepsA[4] = LoadSoundFromWave(wav);
-    UnloadWave(wav);
+    s_load1 = LoadSound("sfx/loadmapout.ogg");
+    s_load2 = LoadSound("sfx/loadmapin.ogg");
+    s_jump = LoadSound("sfx/jump.ogg");
+    s_djump = LoadSound("sfx/djump.ogg");
+    s_dive = LoadSound("sfx/dive.ogg");
+    s_jump2 = LoadSound("sfx/misc-jump.ogg");
+    s_land = LoadSound("sfx/land.ogg");
+    s_smack = LoadSound("sfx/smack.ogg");
+    s_spin = LoadSound("sfx/spin.ogg");
+    s_flip = LoadSound("sfx/flip.ogg");
+    s_candy = LoadSound("sfx/candy.ogg");
+    s_break = LoadSound("sfx/break-box.ogg");
+    s_gotice = LoadSound("sfx/get-ice-cream.ogg");
+    s_pole = LoadSound("sfx/pole.ogg");
+    s_icedoor = LoadSound("sfx/unlock-door.ogg");
+    s_cancel = LoadSound("sfx/cancel.ogg");
+    s_powerup = LoadSound("sfx/powerup.ogg");
+    s_damage = LoadSound("sfx/damage.ogg");
+
+    for (int i = 0; i < 5; i++) {
+        char sfx_path[] = "sfx/sa1.ogg";
+        sfx_path[6] = (i+1) % 10 + '0';
+        printf("%s \n", sfx_path);
+        stepsA[i] = LoadSound(sfx_path);
+    }
+
     //this is a music stream because its looped and always playing
-    s_slide = LoadMusicStreamFromMemory(".ogg",sfx_slide,sizeof(sfx_slide));
+    s_slide = LoadMusicStream("sfx/slide.ogg");
 	s_slide.looping = true;
     PlayMusicStream(s_slide);
     SetMusicVolume(s_slide,.0f);
@@ -4095,99 +3537,91 @@ int main(){
         SetShaderValue(shader,SHam3l,(float[1]){((float)135)/255},SHADER_UNIFORM_FLOAT);
         SetShaderValue(shader,SHbrl,(float[1]){compbrightness(1)},SHADER_UNIFORM_FLOAT);
     }
+
+    loadglblist();
+    printf("!\n");
     
     //load models
-    prepmodel(glblist[5],glbsize[5]);
-    b_torso = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    //prepmodel(glblist[5],glbsize[5]);
+    //SetLoadFileDataCallback(readmodel);
+    b_torso = LoadModel(glblist[5]);
     b_torso.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_torso.materials[1].shader = shader;
-    prepmodel(glblist[6],glbsize[6]);
-    b_head = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_head = LoadModel(glblist[6]);
+    printf("!\n");
     b_head.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_head.materials[1].shader = shader;
-    prepmodel(glblist[7],glbsize[7]);
-    b_face = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_face = LoadModel(glblist[7]);
+    printf("!\n");
     b_face.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = bt_faces[0];
     b_face.materials[1].shader = shader;
-    prepmodel(glblist[8],glbsize[8]);
-    b_leg = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_leg = LoadModel(glblist[8]);
+    printf("!\n");
     b_leg.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_leg.materials[1].shader = shader;
-    prepmodel(glblist[9],glbsize[9]);
-    b_tarm = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_tarm = LoadModel(glblist[9]);
+    printf("!\n");
     b_tarm.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_tarm.materials[1].shader = shader;
-    prepmodel(glblist[10],glbsize[10]);
-    b_barm = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_barm = LoadModel(glblist[10]);
+    printf("!\n");
     b_barm.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_barm.materials[1].shader = shader;
-    prepmodel(glblist[11],glbsize[11]);
-    b_dot = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_dot = LoadModel(glblist[11]);
+    printf("!\n");
     //b_dot.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_plain;
     b_dot.materials[1].maps[MATERIAL_MAP_DIFFUSE].color = (Color){124,255,129,255};
     b_dot.materials[1].shader = shader;
-    prepmodel(glblist[35],glbsize[35]);
-    b_jetpack = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_jetpack = LoadModel(glblist[35]);
+    printf("!\n");
     b_jetpack.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_jetpack;
     b_jetpack.materials[1].shader = shader;
-    prepmodel(glblist[36],glbsize[36]);
-    b_booster = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_booster = LoadModel(glblist[36]);
+    printf("!\n");
     b_booster.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_jetpack;
     b_booster.materials[1].shader = shader;
-    prepmodel(glblist[37],glbsize[37]);
-    b_pack = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_pack = LoadModel(glblist[37]);
+    printf("!\n");
     b_pack.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     b_pack.materials[1].shader = shader;
-    prepmodel(glblist[38],glbsize[38]);
-    ml_givebox = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    ml_givebox = LoadModel(glblist[38]);
+    printf("!\n");
     ml_givebox.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_givebox;
     ml_givebox.materials[1].shader = shader;
-    prepmodel(glblist[39],glbsize[39]);
-    b_board = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    printf("!\n");
+    b_board = LoadModel(glblist[39]);
+    printf("!\n");
     b_board.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_board;
     b_board.materials[1].shader = shader;
-    prepmodel(glblist[40],glbsize[40]);
-    b_wheel = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_wheel = LoadModel(glblist[40]);
+    printf("!\n");
     b_wheel.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_board;
     b_wheel.materials[1].shader = shader;
-    prepmodel(glblist[41],glbsize[41]);
-    b_battery = LoadModel("tuffness.glb");
-    SetLoadFileDataCallback(NULL);
+    b_battery = LoadModel(glblist[41]);
+    printf("!\n");
     b_battery.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = t_battery;
     b_battery.materials[1].shader = shader;
+    SetLoadFileDataCallback(NULL);
     
     
-    prepmodel(glblist[33],glbsize[33]);
-    curhat = LoadModel("tuffness.glb");
+    curhat = LoadModel(glblist[33]);
     SetLoadFileDataCallback(NULL);
     curhat.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = curskin;
     curhat.materials[1].shader = shader;
+    printf("!\n");
     
     
-    prepmodel(glblist[12],glbsize[12]);
-    ml_candy = LoadModel("tuffness.glb");
+    ml_candy = LoadModel(glblist[12]);
+    printf("!\n");
     SetLoadFileDataCallback(NULL);
     ml_candy.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = ml_candy_tex;
     ml_candy.materials[1].shader = shader;
-    prepmodel(glblist[31],glbsize[31]);
-    ml_cloud = LoadModel("tuffness.glb");
+    ml_cloud = LoadModel(glblist[31]);
+    printf("!\n");
+    printf("!\n");
     SetLoadFileDataCallback(NULL);
     ml_cloud.materials[1].shader = shader;
-    prepmodel(glblist[32],glbsize[32]);
-    ml_icedcream = LoadModel("tuffness.glb");
+    ml_icedcream = LoadModel(glblist[32]);
     SetLoadFileDataCallback(NULL);
     ml_icedcream.materials[1].maps[MATERIAL_MAP_DIFFUSE].texture = ml_icedcream_tex;
     ml_icedcream.materials[1].shader = shader;
@@ -4196,6 +3630,8 @@ int main(){
     p_break.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_cork;
     p_sun = LoadModelFromMesh(GenMeshPlaneT(1,1,1,1,1,-1));
     p_sun.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = t_sun;
+    printf("!\n");
+
 	
     camera.position = (Vector3){0,0,-10};
     camera.target = (Vector3){0};
@@ -4223,6 +3659,7 @@ int main(){
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    unloadimglists();
     UnloadShader(shader);
     CloseWindow();                  // Close window and OpenGL context
 #endif
