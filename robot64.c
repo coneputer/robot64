@@ -3408,6 +3408,20 @@ void stepchar(){
     }
 }
 
+bool vSync = true;
+bool antialiasing = false;
+
+// super terrible way that i will fix eventually
+void updateWindowFlags() {
+    if (vSync && antialiasing)
+        SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT);
+    else if (vSync)
+        SetWindowState(FLAG_VSYNC_HINT);
+    else if (antialiasing)
+        SetConfigFlags(FLAG_MSAA_4X_HINT);
+    else SetWindowState(0);
+}
+
 //----------------------------------------------------------------------------------
 // Main entry point
 //----------------------------------------------------------------------------------
@@ -3423,7 +3437,7 @@ int main(){
     // Initialization
     //--------------------------------------------------------------------------------------
     //SetConfigFlags(FLAG_WINDOW_TRANSPARENT);
-    SetConfigFlags(FLAG_VSYNC_HINT);
+    updateWindowFlags();
     InitWindow(960, 540, "Robot 64");
     rlEnableDepthTest();
     BeginDrawing();
@@ -4218,9 +4232,9 @@ static void UpdateDrawFrame(void){
             float btposx = framex+framesize*.8;
             float slidersize = sh*.08;
             float sliderbgsize = framesize*.05;
-            float sliderposy = framey+(framesize*.54)+(btsize/2);
+            float sliderposy = framey+(framesize*.64)+(btsize/2);
 
-            float volumeSliderPositionY = framey + (framesize * .74) + (btsize/2);
+            float volumeSliderPositionY = framey + (framesize * .84) + (btsize/2);
             
             bool ishovering = false;
             switch(pausemenu){
@@ -4280,7 +4294,7 @@ static void UpdateDrawFrame(void){
                     break;
                 case 1:
                     ishovering = mod(relmouse,framesize*.1)<=framesize*.09
-                        &&mousehover>-1&&mousehover<2
+                        &&mousehover>-1&&mousehover<3
                         &&m.x>=framex&&m.x<=framex+framesize;
                     if(ishovering){
                         pauseselt=mousehover;
@@ -4291,14 +4305,16 @@ static void UpdateDrawFrame(void){
                     DrawTexturePro(t_3dUI,(Rectangle){128,0,128,128},(Rectangle){btposx,framey+(framesize*.24),btsize,btsize},(Vector2){0},0,WHITE);
                     r64text("Follow Camera",sw2,framey+(framesize*.34),btsize,.5,0,WHITE);
                     DrawTexturePro(t_3dUI,(Rectangle){stillcam?128:0,128,128,128},(Rectangle){btposx,framey+(framesize*.34),btsize,btsize},(Vector2){0},0,WHITE);
+                    r64text("VSync",sw2,framey+(framesize*.44),btsize,.5,0,WHITE);
+                    DrawTexturePro(t_3dUI,(Rectangle){vSync?0:128,0,128,128},(Rectangle){btposx,framey+(framesize*.44),btsize,btsize},(Vector2){0},0,WHITE);
                     
-                    r64text("Sensitivity:",sw2,framey+(framesize*.44),btsize,.5,0,(Color){200,200,200,255});
+                    r64text("Sensitivity:",sw2,framey+(framesize*.54),btsize,.5,0,(Color){200,200,200,255});
                     DrawRectangleV((Vector2){sw*.4,sliderposy-(sliderbgsize/2)},(Vector2){sw*.2,sliderbgsize},GREEN);
                     DrawTexturePro(
                     t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+sensitivity*sw*.2-slidersize/2,sliderposy,slidersize,slidersize},(Vector2){0},0,WHITE
                     );
 
-                    r64text("Volume:",sw2,framey+(framesize*.64),btsize,.5,0,(Color){200,200,200,255});
+                    r64text("Volume:",sw2,framey+(framesize*.74),btsize,.5,0,(Color){200,200,200,255});
                     DrawRectangleV((Vector2){sw*.4,volumeSliderPositionY-(sliderbgsize/2)},(Vector2){sw*.2,sliderbgsize},GREEN);
                     DrawTexturePro(
                     t_slider,(Rectangle){0,0,256,256},(Rectangle){sw*.4+gameVolume*sw*.2-slidersize/2,volumeSliderPositionY,slidersize,slidersize},(Vector2){0},0,WHITE
@@ -4317,6 +4333,10 @@ static void UpdateDrawFrame(void){
                                 break;
                             case 1:
                                 stillcam=!stillcam;
+                                break;
+                            case 2:
+                                vSync = !vSync;
+                                updateWindowFlags();
                                 break;
                             default:
                                 PlaySound(s_cancel);
