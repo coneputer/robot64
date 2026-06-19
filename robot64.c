@@ -3411,7 +3411,7 @@ void stepchar(){
 bool vSync = true;
 bool antialiasing = false;
 
-// super terrible way that i will fix eventually
+// super terrible way that i will improve eventually
 void updateWindowFlags() {
     if (vSync && antialiasing)
         SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT);
@@ -4457,6 +4457,7 @@ static void UpdateDrawFrame(void){
         // DEBUGGGING TEXTs
         r64text(TextFormat("Robot 64 Recompiled WIP v27 (https://github.com/coneputer/robot64)\nterrain count: %i\nentity count: %i",gm3d.count,entlist.count),20,20,20,0,0,WHITE);
         r64text(TextFormat("campos: %.2f, %.2f, %.2f",camera.position.x,camera.position.y,camera.position.z),20,100,20,0,0,WHITE);
+        r64text(TextFormat("FPS: %.2f", 1 / dt),20,120,20,0,0,WHITE);
         //r64text(TextFormat("lastcampos: %.2f, %.2f, %.2f",lastcampos.x,lastcampos.y,lastcampos.z),20,110,20,0,0,WHITE);
         //for (i=0;i<activeSounds.count;i++){
         //    struct SoundInstance *s = &activeSounds.instances[i];
